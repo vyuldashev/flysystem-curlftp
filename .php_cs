@@ -13,7 +13,7 @@ return PhpCsFixer\Config::create()
         '@PSR1' => false,
         '@PSR2' => true,
         'strict_param' => true,
-        'declare_strict_types' => true,
+        'declare_strict_types' => false,
         'array_syntax' => ['syntax' => 'short'],
         'binary_operator_spaces' => [
             'align_equals' => false,
