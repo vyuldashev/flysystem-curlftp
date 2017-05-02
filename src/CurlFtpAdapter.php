@@ -12,7 +12,7 @@ use League\Flysystem\AdapterInterface;
 use League\Flysystem\NotSupportedException;
 use League\Flysystem\Adapter\AbstractFtpAdapter;
 
-class CurlFtp extends AbstractFtpAdapter
+class CurlFtpAdapter extends AbstractFtpAdapter
 {
     protected $configurable = [
         'protocol',
