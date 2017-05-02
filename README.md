@@ -34,6 +34,12 @@ $filesystem = new Filesystem($adapter);
 
 You case use both `ftp` and `ftps` protocols. 
 
+## Testing
+
+``` bash
+$ composer test
+```
+
 ## Security
 
 If you discover any security related issues, please email misterio92@gmail.com instead of using the issue tracker.

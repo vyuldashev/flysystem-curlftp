@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace VladimirYuldashev\Flysystem;
 
 use DateTime;
@@ -462,6 +460,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $request);
         $result = curl_exec($this->curl);
+        var_dump($result);
         $listing = $this->normalizeListing(explode(PHP_EOL, $result), $directory);
         $output = [];
 

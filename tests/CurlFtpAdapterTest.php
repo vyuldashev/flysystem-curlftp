@@ -1,17 +1,18 @@
 <?php
 
-declare(strict_types=1);
+namespace VladimirYuldashev\Flysystem\Tests;
 
-namespace VladimirYuldashev\Flysystem\Tests\Functional;
-
+use Faker\Factory;
 use League\Flysystem\Config;
 use VladimirYuldashev\Flysystem\CurlFtpAdapter;
 
 class CurlFtpAdapterTest extends \PHPUnit_Framework_TestCase
 {
-    const RESOURCES_PATH = __DIR__.'/../resources/';
+    const RESOURCES_PATH = __DIR__.'/resources/';
 
+    /** @var CurlFtpAdapter */
     protected $adapter;
+    protected $root;
 
     protected function getResourceContent($path)
     {
@@ -77,11 +78,11 @@ class CurlFtpAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider filenameProvider
+     * @dataProvider filesProvider
      */
     public function testRead($filename)
     {
-        $filedata = 'testdata';
+        $filedata = $this->faker()->text;
         $this->createResourceFile($filename, $filedata);
 
         $response = $this->adapter->read($filename);
@@ -89,68 +90,78 @@ class CurlFtpAdapterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider filenameProvider
+     * @dataProvider filesProvider
      */
     public function testWrite($filename)
     {
-        $filedata = 'testdata';
+        $filedata = $this->faker()->text;
 
         $this->adapter->write($filename, $filedata, new Config);
         $this->assertEquals($filedata, $this->getResourceContent($filename));
     }
 
     /**
-     * @dataProvider filenameProvider
+     * @dataProvider filesProvider
      */
     public function testHas($filename)
     {
-        $filedata = 'testdata';
+        $filedata = $this->faker()->text;
         $this->createResourceFile($filename, $filedata);
 
         $this->assertTrue((bool) $this->adapter->has($filename));
     }
 
     /**
-     * @dataProvider filepathProvider
+     * @dataProvider withSubFolderProvider
      */
     public function testHasInSubFolder($filepath)
     {
-        $filedata = 'testdata';
+        $filedata = $this->faker()->text;
         $this->createResourceFile($filepath, $filedata);
 
         $this->assertTrue((bool) $this->adapter->has($filepath));
     }
 
     /**
-     * @dataProvider filepathProvider
+     * @dataProvider withSubFolderProvider
      */
-    public function testListContents($filepath)
+    public function testListContents($path)
     {
-        $filedata = 'testdata';
-        $this->createResourceFile($filepath, $filedata);
+        $filedata = $this->faker()->text;
+        $this->createResourceFile($path, $filedata);
 
-        $this->assertEquals(1, count($this->adapter->listContents(dirname($filepath))));
+        $this->assertCount(1, $this->adapter->listContents(dirname($path)));
     }
 
-    public function filenameProvider()
+    public function filesProvider()
     {
         return [
-            ['test.txt'],
-            ['..test.txt'],
-            ['test 1.txt'],
-            ['test  2.txt'],
-            ['тест.txt'],
+            [$this->randomFileName()],
+            [$this->randomFileName()],
+            [$this->randomFileName()],
+            [$this->randomFileName()],
+            [$this->randomFileName()],
         ];
     }
 
-    public function filepathProvider()
+    public function withSubFolderProvider()
     {
         return [
-            ['test/test.txt'],
-            ['тёст/тёст.txt'],
-            ['test 1/test.txt'],
-            ['test/test 1.txt'],
-            ['test  1/test  2.txt'],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
         ];
+    }
+
+    private function randomFileName()
+    {
+        return $this->faker()->name.'.'.$this->faker()->fileExtension;
+    }
+
+    private function faker()
+    {
+        return Factory::create();
     }
 }

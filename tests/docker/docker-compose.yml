@@ -9,7 +9,7 @@ services:
     test:
         build: ./test
         volumes:
-            - ./../../../:/app
+            - ./../../:/app
         entrypoint: ./vendor/bin/phpunit
         environment:
             - FTP_ADAPTER_PROTOCOL=ftp
@@ -18,7 +18,6 @@ services:
             - FTP_ADAPTER_USER=ftpuser
             - FTP_ADAPTER_PASSWORD=password
             - FTP_ADAPTER_SSL=false
-
 
     vsftpd:
         image: fauria/vsftpd

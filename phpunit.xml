@@ -11,8 +11,8 @@
          verbose="true"
 >
     <testsuites>
-        <testsuite name="functional">
-            <directory suffix=".php">./tests/functional/suites/</directory>
+        <testsuite name="All tests">
+            <directory suffix=".php">./tests/</directory>
         </testsuite>
     </testsuites>
     <filter>

@@ -11,7 +11,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 docker_compose()
 {
-	docker-compose -p flysystem-curlftp/tests/functional -f $DIR/docker/docker-compose.yml $@
+	docker-compose -p flysystem-curlftp/tests -f $DIR/docker/docker-compose.yml $@
 }
 
 if [[ $1 == "build" ]]; then
@@ -23,22 +23,22 @@ fi
 
 docker_compose down
 
-echo 
+echo
 echo "-----------"
 echo "Test ftp adapter with pure-ftpd"
 docker_compose up -d pure-ftpd
 docker_compose run wait pure-ftpd:21 -t 30
-docker_compose run -e FTP_ADAPTER_HOST=pure-ftpd test --testsuite functional
+docker_compose run -e FTP_ADAPTER_HOST=pure-ftpd test
 docker_compose down
 
-echo 
+echo
 echo "-----------"
 echo "Test ftp adapter with vsftpd"
 docker_compose up -d vsftpd
 docker_compose run wait vsftpd:21 -t 30
-docker_compose run -e FTP_ADAPTER_HOST=vsftpd test --testsuite functional
+docker_compose run -e FTP_ADAPTER_HOST=vsftpd test
 docker_compose down
 
-echo 
+echo
 echo "-----------"
 echo "Test completed"
