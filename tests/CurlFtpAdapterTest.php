@@ -79,56 +79,66 @@ class CurlFtpAdapterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider filesProvider
+     *
+     * @param $name
      */
-    public function testRead($filename)
+    public function testRead($name)
     {
-        $filedata = $this->faker()->text;
-        $this->createResourceFile($filename, $filedata);
+        $data = $this->faker()->text;
+        $this->createResourceFile($name, $data);
 
-        $response = $this->adapter->read($filename);
-        $this->assertEquals($filedata, $response['contents']);
+        $response = $this->adapter->read($name);
+        $this->assertEquals($data, $response['contents']);
     }
 
     /**
      * @dataProvider filesProvider
+     *
+     * @param $filename
      */
     public function testWrite($filename)
     {
-        $filedata = $this->faker()->text;
+        $data = $this->faker()->text;
 
-        $this->adapter->write($filename, $filedata, new Config);
-        $this->assertEquals($filedata, $this->getResourceContent($filename));
+        $this->adapter->write($filename, $data, new Config);
+        $this->assertEquals($data, $this->getResourceContent($filename));
     }
 
     /**
      * @dataProvider filesProvider
+     *
+     * @param $name
      */
-    public function testHas($filename)
+    public function testHas($name)
     {
-        $filedata = $this->faker()->text;
-        $this->createResourceFile($filename, $filedata);
+        $data = $this->faker()->text;
+        $this->createResourceFile($name, $data);
 
-        $this->assertTrue((bool) $this->adapter->has($filename));
+        $this->assertTrue((bool) $this->adapter->has($name));
     }
 
     /**
      * @dataProvider withSubFolderProvider
+     *
+     * @param $path
      */
-    public function testHasInSubFolder($filepath)
+    public function testHasInSubFolder($path)
     {
-        $filedata = $this->faker()->text;
-        $this->createResourceFile($filepath, $filedata);
+        $data = $this->faker()->text;
+        $this->createResourceFile($path, $data);
 
-        $this->assertTrue((bool) $this->adapter->has($filepath));
+        $this->assertTrue((bool) $this->adapter->has($path));
     }
 
     /**
      * @dataProvider withSubFolderProvider
+     *
+     * @param $path
      */
     public function testListContents($path)
     {
-        $filedata = $this->faker()->text;
-        $this->createResourceFile($path, $filedata);
+        $data = $this->faker()->text;
+        $this->createResourceFile($path, $data);
 
         $this->assertCount(1, $this->adapter->listContents(dirname($path)));
     }
