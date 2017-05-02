@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace VladimirYuldashev\Flysystem\Tests\Functional;
 
 use League\Flysystem\Config;
 use VladimirYuldashev\Flysystem\CurlFtpAdapter;
 
-class FtpTests extends \PHPUnit_Framework_TestCase
+class CurlFtpAdapterTest extends \PHPUnit_Framework_TestCase
 {
-    const RESOURCES_PATH = __DIR__ . '/../resources/';
+    const RESOURCES_PATH = __DIR__.'/../resources/';
 
     protected $adapter;
 
@@ -21,7 +23,7 @@ class FtpTests extends \PHPUnit_Framework_TestCase
         return implode('/', array_filter([
             rtrim(static::RESOURCES_PATH, '/'),
             trim($this->root, '/'),
-            ltrim($path, '/')
+            ltrim($path, '/'),
         ]));
     }
 
@@ -47,8 +49,8 @@ class FtpTests extends \PHPUnit_Framework_TestCase
 
     protected function clearResources()
     {
-        exec('rm -rf ' . escapeshellarg(static::RESOURCES_PATH) . '*');
-        exec('rm -rf ' . escapeshellarg(static::RESOURCES_PATH) . '.* 2>/dev/null');
+        exec('rm -rf '.escapeshellarg(static::RESOURCES_PATH).'*');
+        exec('rm -rf '.escapeshellarg(static::RESOURCES_PATH).'.* 2>/dev/null');
         clearstatcache();
     }
 
@@ -57,7 +59,7 @@ class FtpTests extends \PHPUnit_Framework_TestCase
         $this->root = '';
         $this->createResourceDir('/');
 
-        $this->adapter = new CurlFtpAdapter([        
+        $this->adapter = new CurlFtpAdapter([
             'protocol' => getenv('FTP_ADAPTER_PROTOCOL'),
             'host' => getenv('FTP_ADAPTER_HOST'),
             'port' => getenv('FTP_ADAPTER_PORT'),
