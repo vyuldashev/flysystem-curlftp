@@ -31,8 +31,8 @@
         }
     },
     "scripts": {
-        "test": "sh tests/run.sh",
-        "cs": "php-cs-fixer fix --allow-risky=yes"
+        "test": "tests/run.sh",
+        "cs": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
