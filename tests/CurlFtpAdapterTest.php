@@ -8,11 +8,14 @@ use VladimirYuldashev\Flysystem\CurlFtpAdapter;
 
 class CurlFtpAdapterTest extends \PHPUnit_Framework_TestCase
 {
-    const RESOURCES_PATH = __DIR__.'/resources/';
-
     /** @var CurlFtpAdapter */
     protected $adapter;
     protected $root;
+
+    protected function getResourcesPath()
+    {
+        return __DIR__.'/resources/';
+    }
 
     protected function getResourceContent($path)
     {
@@ -22,7 +25,7 @@ class CurlFtpAdapterTest extends \PHPUnit_Framework_TestCase
     protected function getResourceAbsolutePath($path)
     {
         return implode('/', array_filter([
-            rtrim(static::RESOURCES_PATH, '/'),
+            rtrim($this->getResourcesPath(), '/'),
             trim($this->root, '/'),
             ltrim($path, '/'),
         ]));
@@ -50,8 +53,8 @@ class CurlFtpAdapterTest extends \PHPUnit_Framework_TestCase
 
     protected function clearResources()
     {
-        exec('rm -rf '.escapeshellarg(static::RESOURCES_PATH).'*');
-        exec('rm -rf '.escapeshellarg(static::RESOURCES_PATH).'.* 2>/dev/null');
+        exec('rm -rf '.escapeshellarg($this->getResourcesPath()).'*');
+        exec('rm -rf '.escapeshellarg($this->getResourcesPath()).'.* 2>/dev/null');
         clearstatcache();
     }
 
