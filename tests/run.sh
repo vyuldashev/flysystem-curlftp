@@ -5,13 +5,6 @@ docker_compose()
 	docker-compose -p flysystem-curlftp/tests -f tests/docker/docker-compose.yml $@
 }
 
-if [[ $1 == "build" ]]; then
-	docker_compose build
-	cd -
-	exit
-fi
-
-
 echo "-----------"
 echo "Launching containers"
 docker_compose down
