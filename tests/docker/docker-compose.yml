@@ -6,29 +6,21 @@ services:
         volumes:
             - ./wait-for-it.sh:/wait-for-it.sh
 
-    test:
-        build: ./test
-        volumes:
-            - ./../../:/app
-        entrypoint: ./vendor/bin/phpunit
-        environment:
-            - FTP_ADAPTER_PROTOCOL=ftp
-            - FTP_ADAPTER_HOST=vsftpd
-            - FTP_ADAPTER_PORT=21
-            - FTP_ADAPTER_USER=ftpuser
-            - FTP_ADAPTER_PASSWORD=password
-            - FTP_ADAPTER_SSL=false
-
     vsftpd:
         image: fauria/vsftpd
+        ports: 
+            - "221:21"
         volumes:
             - ./../resources:/home/vsftpd/ftpuser
         environment:
             - FTP_USER=ftpuser
             - FTP_PASS=password
 
+
     pure-ftpd:
         build: ./pure-ftpd
+        ports: 
+            - "222:21"
         volumes:
             - ./../resources:/home/ftpuser/ftpuser
         environment:

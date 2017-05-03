@@ -146,6 +146,11 @@ class CurlFtpAdapterTest extends \PHPUnit_Framework_TestCase
     public function filesProvider()
     {
         return [
+            ['test.txt'],
+            ['..test.txt'],
+            ['test 1.txt'],
+            ['test  2.txt'],
+            ['тест.txt'],
             [$this->randomFileName()],
             [$this->randomFileName()],
             [$this->randomFileName()],
@@ -157,6 +162,11 @@ class CurlFtpAdapterTest extends \PHPUnit_Framework_TestCase
     public function withSubFolderProvider()
     {
         return [
+            ['test/test.txt'],
+            ['тёст/тёст.txt'],
+            ['test 1/test.txt'],
+            ['test/test 1.txt'],
+            ['test  1/test  2.txt'],
             [$this->faker()->word.'/'.$this->randomFileName()],
             [$this->faker()->word.'/'.$this->randomFileName()],
             [$this->faker()->word.'/'.$this->randomFileName()],

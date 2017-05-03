@@ -25,4 +25,10 @@
         <log type="coverage-html" target="coverage" showUncoveredFiles="true"/>
         <log type="coverage-clover" target="coverage.xml" showUncoveredFiles="true"/>
     </logging>
+    <php>
+        <env name="FTP_ADAPTER_PROTOCOL" value="ftp" />
+        <env name="FTP_ADAPTER_HOST" value="localhost" />
+        <env name="FTP_ADAPTER_USER" value="ftpuser" />
+        <env name="FTP_ADAPTER_PASSWORD" value="password" />
+    </php>
 </phpunit>
