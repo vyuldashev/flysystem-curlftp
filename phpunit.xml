@@ -27,7 +27,7 @@
     </logging>
     <php>
         <env name="FTP_ADAPTER_PROTOCOL" value="ftp" />
-        <env name="FTP_ADAPTER_HOST" value="localhost" />
+        <env name="FTP_ADAPTER_HOST" value="127.0.0.1" />
         <env name="FTP_ADAPTER_USER" value="ftpuser" />
         <env name="FTP_ADAPTER_PASSWORD" value="password" />
     </php>
