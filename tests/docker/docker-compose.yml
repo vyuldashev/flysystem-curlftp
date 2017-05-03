@@ -10,17 +10,20 @@ services:
         image: fauria/vsftpd
         ports: 
             - "221:21"
+            - "21100-21110:21100-21110"
         volumes:
             - ./../resources:/home/vsftpd/ftpuser
         environment:
             - FTP_USER=ftpuser
             - FTP_PASS=password
+            - PASV_ADDRESS=127.0.0.1
 
 
     pure-ftpd:
         build: ./pure-ftpd
         ports: 
             - "222:21"
+            - "30000-30009:30000-30009"
         volumes:
             - ./../resources:/home/ftpuser/ftpuser
         environment:
