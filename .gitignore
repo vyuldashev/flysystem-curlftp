@@ -1,2 +1,4 @@
+/tests/coverage
+/tests/coverage.xml
 /vendor/
 composer.lock

@@ -9,6 +9,7 @@ use League\Flysystem\Util\MimeType;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\NotSupportedException;
 use League\Flysystem\Adapter\AbstractFtpAdapter;
+use Normalizer;
 
 class CurlFtpAdapter extends AbstractFtpAdapter
 {
@@ -363,7 +364,15 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         $file = array_filter($listing, function ($item) use ($path) {
-            return $item['path'] === $path;
+            $a = $item['path'];
+            $b = $path;
+
+            if (class_exists('Normalizer')) {
+                $a = Normalizer::normalize($a);
+                $b = Normalizer::normalize($b);
+            }
+
+            return $a === $b;
         });
 
         return current($file);
@@ -433,7 +442,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return $this->listDirectoryContentsRecursive($directory);
         }
 
-        $request = strlen($directory) > 0 ? 'LIST '.$directory : 'LIST';
+        $request = strlen($directory) > 0 ? 'LIST -aln '.$directory : 'LIST -aln';
 
         curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $request);
         $result = curl_exec($this->curl);
@@ -460,7 +469,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $request);
         $result = curl_exec($this->curl);
-        var_dump($result);
+
         $listing = $this->normalizeListing(explode(PHP_EOL, $result), $directory);
         $output = [];
 
