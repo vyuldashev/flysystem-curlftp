@@ -39,8 +39,6 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         parent::__construct($config);
 
         $this->connect();
-
-        $this->isPureFtpd = $this->isPureFtpdServer();
     }
 
     /**
@@ -71,6 +69,10 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         curl_setopt($this->curl, CURLOPT_FTP_SSL, CURLFTPSSL_TRY);
         curl_setopt($this->curl, CURLOPT_FTPSSLAUTH, CURLFTPAUTH_TLS);
         curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
+
+        if($this->isPureFtpd === null) {
+            $this->isPureFtpd = $this->isPureFtpdServer();
+        }
     }
 
     /**
@@ -80,6 +82,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         if (is_resource($this->curl)) {
             curl_close($this->curl);
+            $this->isPureFtpd = null;
         }
     }
 
