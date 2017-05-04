@@ -7,7 +7,7 @@ services:
             - ./wait-for-it.sh:/wait-for-it.sh
 
     vsftpd:
-        image: fauria/vsftpd
+        build: ./vsftpd
         ports: 
             - "221:21"
             - "21100-21110:21100-21110"
