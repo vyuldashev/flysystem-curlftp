@@ -19,8 +19,7 @@
         "phpunit/phpunit": "^4",
         "sllh/php-cs-fixer-styleci-bridge": "^2.1",
         "fzaninotto/faker": "^1.6",
-        "larapack/dd": "^1.1",
-        "friendsofphp/php-cs-fixer": "^2.3"
+        "larapack/dd": "^1.1"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +33,7 @@
     },
     "scripts": {
         "test": "sh tests/run.sh",
-        "cs": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
+        "cs": "php-cs-fixer fix --allow-risky=yes"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
