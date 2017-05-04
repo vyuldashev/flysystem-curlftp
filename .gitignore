@@ -1,3 +1,4 @@
+/.idea
 /tests/coverage
 /tests/coverage.xml
 /vendor/
