@@ -3,13 +3,13 @@
 namespace VladimirYuldashev\Flysystem;
 
 use DateTime;
+use Normalizer;
 use League\Flysystem\Util;
 use League\Flysystem\Config;
 use League\Flysystem\Util\MimeType;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\NotSupportedException;
 use League\Flysystem\Adapter\AbstractFtpAdapter;
-use Normalizer;
 
 class CurlFtpAdapter extends AbstractFtpAdapter
 {
@@ -27,6 +27,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     protected $permPublic = 744;
     protected $permPrivate = 700;
 
+    protected $isPureFtpd;
+
     /**
      * Constructor.
      *
@@ -37,6 +39,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         parent::__construct($config);
 
         $this->connect();
+
+        $this->isPureFtpd = $this->isPureFtpdServer();
     }
 
     /**
@@ -364,15 +368,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         $file = array_filter($listing, function ($item) use ($path) {
-            $a = $item['path'];
-            $b = $path;
-
-            if (class_exists('Normalizer')) {
-                $a = Normalizer::normalize($a);
-                $b = Normalizer::normalize($b);
-            }
-
-            return $a === $b;
+            return Normalizer::normalize($item['path']) === Normalizer::normalize($path);
         });
 
         return current($file);
@@ -442,7 +438,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return $this->listDirectoryContentsRecursive($directory);
         }
 
-        $request = strlen($directory) > 0 ? 'LIST -aln '.$directory : 'LIST -aln';
+        $request = strlen($directory) > 0 ? 'LIST -aln '.$this->normalizePath($directory) : 'LIST -aln';
 
         curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $request);
         $result = curl_exec($this->curl);
@@ -465,7 +461,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function listDirectoryContentsRecursive($directory)
     {
-        $request = strlen($directory) > 0 ? 'LIST '.$directory : 'LIST';
+        $request = strlen($directory) > 0 ? 'LIST '.$this->normalizePath($directory) : 'LIST';
 
         curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $request);
         $result = curl_exec($this->curl);
@@ -503,6 +499,48 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         return $object;
+    }
+
+    /**
+     * Normalize path depending on server.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function normalizePath($path)
+    {
+        $path = Normalizer::normalize($path);
+
+        if ($this->isPureFtpd) {
+            $path = str_replace(' ', '\ ', $path);
+        }
+
+        return $path;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isPureFtpdServer()
+    {
+        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'HELP');
+
+        $response = '';
+        curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, function ($ch, $string) use (&$response) {
+            $length = strlen($string);
+            $response .= $string;
+
+            return $length;
+        });
+        curl_exec($this->curl);
+
+        $response = explode(PHP_EOL, trim($response));
+        $response = end($response);
+
+        $this->connect();
+
+        return stripos($response, 'Pure-FTPd') !== false;
     }
 
     protected function getUrl()
