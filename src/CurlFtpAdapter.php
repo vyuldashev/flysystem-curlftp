@@ -21,11 +21,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'password',
     ];
 
+    /** @var string */
     protected $protocol;
-    protected $curl;
 
-    protected $permPublic = 744;
-    protected $permPrivate = 700;
+    /** @var resource */
+    protected $curl;
 
     protected $isPureFtpd;
 
@@ -192,7 +192,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         $this->connect();
 
-        return $result;
+        return $result !== false;
     }
 
     /**
@@ -211,7 +211,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return false;
         }
 
-        return $this->write($newpath, $file['contents'], new Config());
+        return $this->write($newpath, $file['contents'], new Config()) !== false;
     }
 
     /**
@@ -266,7 +266,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         $this->connect();
 
-        return $result !== false;
+        if ($result === false) {
+            return false;
+        }
+
+        return ['type' => 'dir', 'path' => $dirname];
     }
 
     /**
@@ -281,8 +285,21 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $mode = $visibility === AdapterInterface::VISIBILITY_PUBLIC ? $this->getPermPublic() : $this->getPermPrivate();
 
-        curl_setopt($this->curl, CURLOPT_POSTQUOTE, ['SITE CHMOD '.$mode.' '.$path]);
-        $result = curl_exec($this->curl);
+        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'SITE CHMOD '.$mode.' '.$this->normalizePath($path));
+        $response = '';
+        curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, function ($ch, $string) use (&$response) {
+            $length = strlen($string);
+            $response .= $string;
+
+            return $length;
+        });
+        curl_exec($this->curl);
+
+        if ($this->isPureFtpd) {
+            $result = stripos($response, 'Permissions changed') !== false;
+        } else {
+            $result = stripos($response, 'CHMOD command ok') !== false;
+        }
 
         $this->connect();
 
@@ -462,7 +479,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function listDirectoryContentsRecursive($directory)
     {
-        $request = strlen($directory) > 0 ? 'LIST '.$this->normalizePath($directory) : 'LIST';
+        $request = strlen($directory) > 0 ? 'LIST -aln '.$this->normalizePath($directory) : 'LIST';
 
         curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $request);
         $result = curl_exec($this->curl);
