@@ -357,7 +357,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return ['type' => 'dir', 'path' => ''];
         }
 
-        $request = rtrim("LIST -A " . $this->normalizePath($path));
+        $request = rtrim('LIST -A ' . $this->normalizePath($path));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -365,6 +365,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return false;
         }
         $listing = $this->normalizeListing(explode(PHP_EOL, $result), '');
+
         return current($listing);
     }
 
@@ -428,6 +429,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         if ($directory === '/') {
             $directory = '';
         }
+
         return $this->normalizeListing(explode(PHP_EOL, $result), $directory);
     }
 
@@ -485,11 +487,12 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function isPureFtpdServer()
     {
-    	if (!isset($this->isPureFtpd)) {
-    		$response = $this->rawCommand('HELP');
-	        $response = end($response);
-	        $this->isPureFtpd = stripos($response, 'Pure-FTPd') !== false;
-    	}
+        if (!isset($this->isPureFtpd)) {
+            $response = $this->rawCommand('HELP');
+            $response = end($response);
+            $this->isPureFtpd = stripos($response, 'Pure-FTPd') !== false;
+        }
+
         return $this->isPureFtpd;
     }
 
