@@ -17,7 +17,7 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
 
     protected function getResourcesPath()
     {
-        return __DIR__.'/resources/';
+        return __DIR__ . '/resources/';
     }
 
     protected function getResourceContent($path)
@@ -61,8 +61,8 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
 
     protected function clearResources()
     {
-        exec('rm -rf '.escapeshellarg($this->getResourcesPath()).'*');
-        exec('rm -rf '.escapeshellarg($this->getResourcesPath()).'.* 2>/dev/null');
+        exec('rm -rf ' . escapeshellarg($this->getResourcesPath()) . '*');
+        exec('rm -rf ' . escapeshellarg($this->getResourcesPath()) . '.* 2>/dev/null');
         clearstatcache();
     }
 }

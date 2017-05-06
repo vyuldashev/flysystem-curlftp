@@ -22,7 +22,7 @@ return PhpCsFixer\Config::create()
         'blank_line_after_opening_tag' => true,
         'blank_line_before_return' => true,
         'cast_spaces' => true,
-        'concat_space' => ['spacing' => 'none'],
+        'concat_space' => ['spacing' => 'one'],
         'declare_equal_normalize' => true,
         'function_typehint_space' => true,
         'general_phpdoc_annotation_remove' => ['access', 'package', 'subpackage'],

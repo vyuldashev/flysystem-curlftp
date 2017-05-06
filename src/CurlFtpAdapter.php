@@ -8,7 +8,6 @@ use League\Flysystem\Util;
 use League\Flysystem\Config;
 use League\Flysystem\Util\MimeType;
 use League\Flysystem\AdapterInterface;
-use League\Flysystem\NotSupportedException;
 use League\Flysystem\Adapter\AbstractFtpAdapter;
 
 class CurlFtpAdapter extends AbstractFtpAdapter
@@ -60,7 +59,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $this->connection = new Curl();
         $this->connection->setOptions([
             CURLOPT_URL => $this->getUrl(),
-            CURLOPT_USERPWD => $this->getUsername().':'.$this->getPassword(),
+            CURLOPT_USERPWD => $this->getUsername() . ':' . $this->getPassword(),
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FTP_SSL => CURLFTPSSL_TRY,
@@ -134,7 +133,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             CURLOPT_URL => $this->getUrl() . '/' . $path,
             CURLOPT_UPLOAD => 1,
             CURLOPT_INFILE => $resource,
-        ]);    
+        ]);
 
         if ($result === false) {
             return false;
@@ -186,7 +185,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['RNFR '.$path, 'RNTO '.$newpath]
+            CURLOPT_POSTQUOTE => ['RNFR ' . $path, 'RNTO ' . $newpath],
         ]);
 
         return $result !== false;
@@ -223,7 +222,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['DELE '.$path]
+            CURLOPT_POSTQUOTE => ['DELE ' . $path],
         ]);
 
         return $result !== false;
@@ -241,7 +240,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['RMD '.$dirname]
+            CURLOPT_POSTQUOTE => ['RMD ' . $dirname],
         ]);
 
         return $result !== false;
@@ -260,7 +259,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['MKD '.$dirname]
+            CURLOPT_POSTQUOTE => ['MKD ' . $dirname],
         ]);
 
         if ($result === false) {
@@ -292,6 +291,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         if ($code !== '200') {
             return false;
         }
+
         return $this->getMetadata($path);
     }
 
@@ -329,12 +329,13 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_URL => $this->getUrl().'/'.$path,
+            CURLOPT_URL => $this->getUrl() . '/' . $path,
             CURLOPT_FILE => $stream,
         ]);
 
         if (!$result) {
             fclose($stream);
+
             return false;
         }
 
@@ -437,7 +438,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function listDirectoryContentsRecursive($directory)
     {
-        $request = rtrim('LIST -aln '.$this->normalizePath($directory));
+        $request = rtrim('LIST -aln ' . $this->normalizePath($directory));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -493,8 +494,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * Sends an arbitrary command to an FTP server
-     * 
+     * Sends an arbitrary command to an FTP server.
+     *
      * @param  string $command The command to execute
      * @return array Returns the server's response as an array of strings
      */
@@ -503,6 +504,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $response = '';
         $callback = function ($ch, $string) use (&$response) {
             $response .= $string;
+
             return strlen($string);
         };
         $connection = $this->getConnection();
@@ -510,11 +512,12 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             CURLOPT_CUSTOMREQUEST => $command,
             CURLOPT_HEADERFUNCTION => $callback,
         ]);
+
         return explode(PHP_EOL, trim($response));
     }
 
     protected function getUrl()
     {
-        return $this->protocol.'://'.$this->getHost().':'.$this->getPort();
+        return $this->protocol . '://' . $this->getHost() . ':' . $this->getPort();
     }
 }
