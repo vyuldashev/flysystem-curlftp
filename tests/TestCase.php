@@ -11,6 +11,7 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
+        $this->adapter->disconnect();
         unset($this->adapter);
         $this->clearResources();
     }
