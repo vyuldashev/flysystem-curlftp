@@ -41,7 +41,7 @@ class CurlFtpAdapterTest extends TestCase
             'type' => 'file',
             'path' => $filename,
             'contents' => $contents,
-            'mimetype' => Util::guessMimeType($this->getResourcesPath().'/'.$filename, $contents),
+            'mimetype' => Util::guessMimeType($this->getResourcesPath() . '/' . $filename, $contents),
         ], $result);
 
         $this->assertEquals($contents, $this->getResourceContent($filename));
@@ -74,7 +74,7 @@ class CurlFtpAdapterTest extends TestCase
             'type' => 'file',
             'path' => $filename,
             'contents' => $newContents,
-            'mimetype' => Util::guessMimeType($this->getResourcesPath().'/'.$filename, $contents),
+            'mimetype' => Util::guessMimeType($this->getResourcesPath() . '/' . $filename, $contents),
         ], $result);
 
         $this->assertNotEquals($contents, $this->getResourceContent($filename));
@@ -310,16 +310,16 @@ class CurlFtpAdapterTest extends TestCase
             ['test 1/test.txt'],
             ['test/test 1.txt'],
             ['test  1/test  2.txt'],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word . '/' . $this->randomFileName()],
+            [$this->faker()->word . '/' . $this->randomFileName()],
+            [$this->faker()->word . '/' . $this->randomFileName()],
+            [$this->faker()->word . '/' . $this->randomFileName()],
+            [$this->faker()->word . '/' . $this->randomFileName()],
         ];
     }
 
     private function randomFileName()
     {
-        return $this->faker()->name.'.'.$this->faker()->fileExtension;
+        return $this->faker()->name . '.' . $this->faker()->fileExtension;
     }
 }
