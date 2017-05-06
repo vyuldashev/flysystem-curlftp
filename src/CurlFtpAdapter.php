@@ -22,11 +22,14 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     ];
 
     /** @var string */
-    protected $protocol;
+    protected $protocol = 'ftp';
 
     /** @var resource */
     protected $curl;
 
+    /**
+     * @var bool
+     */
     protected $isPureFtpd;
 
     /**
@@ -37,16 +40,12 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     public function __construct(array $config)
     {
         parent::__construct($config);
-
-        $this->connect();
-
-        $this->isPureFtpd = $this->isPureFtpdServer();
     }
 
     /**
      * Set remote protocol. ftp or ftps.
      *
-     * @param $protocol
+     * @param string $protocol
      */
     public function setProtocol($protocol)
     {
@@ -58,19 +57,19 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function connect()
     {
-        if ($this->isConnected()) {
-            $this->disconnect();
-        }
+        $this->connection = new Curl();
+        $this->connection->setOptions([
+            CURLOPT_URL => $this->getUrl(),
+            CURLOPT_USERPWD => $this->getUsername().':'.$this->getPassword(),
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_FTP_SSL => CURLFTPSSL_TRY,
+            CURLOPT_FTPSSLAUTH => CURLFTPAUTH_TLS,
+            CURLOPT_RETURNTRANSFER => true,
+            //CURLOPT_VERBOSE => true,
+        ]);
 
-        $this->curl = curl_init();
-
-        curl_setopt($this->curl, CURLOPT_URL, $this->getUrl());
-        curl_setopt($this->curl, CURLOPT_USERPWD, $this->getUsername().':'.$this->getPassword());
-        curl_setopt($this->curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($this->curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($this->curl, CURLOPT_FTP_SSL, CURLFTPSSL_TRY);
-        curl_setopt($this->curl, CURLOPT_FTPSSLAUTH, CURLFTPAUTH_TLS);
-        curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
+        $this->isPureFtpd = $this->isPureFtpdServer();
     }
 
     /**
@@ -78,9 +77,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function disconnect()
     {
-        if (is_resource($this->curl)) {
-            curl_close($this->curl);
-            $this->isPureFtpd = null;
+        if (isset($this->connection)) {
+            unset($this->connection);
         }
     }
 
@@ -91,7 +89,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function isConnected()
     {
-        return is_resource($this->curl);
+        return isset($this->connection);
     }
 
     /**
@@ -132,12 +130,13 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function writeStream($path, $resource, Config $config)
     {
-        curl_setopt($this->curl, CURLOPT_URL, $this->getUrl().'/'.$path);
-        curl_setopt($this->curl, CURLOPT_UPLOAD, 1);
-        curl_setopt($this->curl, CURLOPT_INFILE, $resource);
-        $result = curl_exec($this->curl);
+        $connection = $this->getConnection();
 
-        $this->connect();
+        $result = $connection->exec([
+            CURLOPT_URL => $this->getUrl() . '/' . $path,
+            CURLOPT_UPLOAD => 1,
+            CURLOPT_INFILE => $resource,
+        ]);    
 
         if ($result === false) {
             return false;
@@ -186,11 +185,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function rename($path, $newpath)
     {
-        curl_setopt($this->curl, CURLOPT_POSTQUOTE, ['RNFR '.$path, 'RNTO '.$newpath]);
+        $connection = $this->getConnection();
 
-        $result = curl_exec($this->curl);
-
-        $this->connect();
+        $result = $connection->exec([
+            CURLOPT_POSTQUOTE => ['RNFR '.$path, 'RNTO '.$newpath]
+        ]);
 
         return $result !== false;
     }
@@ -223,11 +222,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function delete($path)
     {
-        curl_setopt($this->curl, CURLOPT_POSTQUOTE, ['DELE '.$path]);
+        $connection = $this->getConnection();
 
-        $result = curl_exec($this->curl);
-
-        $this->connect();
+        $result = $connection->exec([
+            CURLOPT_POSTQUOTE => ['DELE '.$path]
+        ]);
 
         return $result !== false;
     }
@@ -241,11 +240,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function deleteDir($dirname)
     {
-        curl_setopt($this->curl, CURLOPT_POSTQUOTE, ['RMD '.$dirname]);
+        $connection = $this->getConnection();
 
-        $result = curl_exec($this->curl);
-
-        $this->connect();
+        $result = $connection->exec([
+            CURLOPT_POSTQUOTE => ['RMD '.$dirname]
+        ]);
 
         return $result !== false;
     }
@@ -260,11 +259,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function createDir($dirname, Config $config)
     {
-        curl_setopt($this->curl, CURLOPT_POSTQUOTE, ['MKD '.$dirname]);
+        $connection = $this->getConnection();
 
-        $result = curl_exec($this->curl);
-
-        $this->connect();
+        $result = $connection->exec([
+            CURLOPT_POSTQUOTE => ['MKD '.$dirname]
+        ]);
 
         if ($result === false) {
             return false;
@@ -283,30 +282,18 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function setVisibility($path, $visibility)
     {
-        $mode = $visibility === AdapterInterface::VISIBILITY_PUBLIC ? $this->getPermPublic() : $this->getPermPrivate();
-
-        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'SITE CHMOD '.$mode.' '.$this->normalizePath($path));
-        $response = '';
-        curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, function ($ch, $string) use (&$response) {
-            $length = strlen($string);
-            $response .= $string;
-
-            return $length;
-        });
-        curl_exec($this->curl);
-
-        if ($this->isPureFtpd) {
-            $result = stripos($response, 'Permissions changed') !== false;
+        if ($visibility === AdapterInterface::VISIBILITY_PUBLIC) {
+            $mode = $this->getPermPublic();
         } else {
-            $result = stripos($response, 'CHMOD command ok') !== false;
+            $mode = $this->getPermPrivate();
         }
 
-        $this->connect();
-
-        if ($result === false) {
+        $request = sprintf('SITE CHMOD %o %s', $mode, $this->normalizePath($path));
+        $response = $this->rawCommand(rtrim($request));
+        list($code, $message) = explode(' ', end($response), 2);
+        if ($code !== '200') {
             return false;
         }
-
         return $this->getMetadata($path);
     }
 
@@ -341,15 +328,15 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $stream = fopen('php://temp', 'w+b');
 
-        curl_setopt($this->curl, CURLOPT_URL, $this->getUrl().'/'.$path);
-        curl_setopt($this->curl, CURLOPT_FILE, $stream);
-        $result = curl_exec($this->curl);
+        $connection = $this->getConnection();
 
-        $this->connect();
+        $result = $connection->exec([
+            CURLOPT_URL => $this->getUrl().'/'.$path,
+            CURLOPT_FILE => $stream,
+        ]);
 
         if (!$result) {
             fclose($stream);
-
             return false;
         }
 
@@ -419,23 +406,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function getTimestamp($path)
     {
-        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'MDTM '.$path);
-
-        $response = '';
-        curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, function ($ch, $string) use (&$response) {
-            $length = strlen($string);
-            $response .= $string;
-
-            return $length;
-        });
-        curl_exec($this->curl);
-
-        $response = explode(PHP_EOL, trim($response));
-        $item = end($response);
-
-        $this->connect();
-
-        list($code, $time) = explode(' ', $item);
+        $response = $this->rawCommand('MDTM ' . $path);
+        list($code, $time) = explode(' ', end($response), 2);
         if ($code !== '213') {
             return false;
         }
@@ -456,11 +428,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return $this->listDirectoryContentsRecursive($directory);
         }
 
-        $request = strlen($directory) > 0 ? 'LIST -aln '.$this->normalizePath($directory) : 'LIST -aln';
+        $options = $recursive ? '-alnR' : '-aln';
+        $request = rtrim("LIST $options " . $this->normalizePath($directory));
 
-        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $request);
-        $result = curl_exec($this->curl);
-
+        $connection = $this->getConnection();
+        $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
         if ($result === false) {
             return false;
         }
@@ -479,10 +451,10 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function listDirectoryContentsRecursive($directory)
     {
-        $request = strlen($directory) > 0 ? 'LIST -aln '.$this->normalizePath($directory) : 'LIST';
+        $request = rtrim('LIST -aln '.$this->normalizePath($directory));
 
-        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, $request);
-        $result = curl_exec($this->curl);
+        $connection = $this->getConnection();
+        $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
 
         $listing = $this->normalizeListing(explode(PHP_EOL, $result), $directory);
         $output = [];
@@ -499,27 +471,6 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * Normalize a file entry.
-     *
-     * @param string $item
-     * @param string $base
-     *
-     * @return array normalized file array
-     *
-     * @throws NotSupportedException
-     */
-    protected function normalizeObject($item, $base)
-    {
-        $object = parent::normalizeObject($item, $base);
-
-        if ($timestamp = $this->getTimestamp($object['path'])) {
-            $object['timestamp'] = $timestamp['timestamp'];
-        }
-
-        return $object;
-    }
-
-    /**
      * Normalize path depending on server.
      *
      * @param string $path
@@ -528,6 +479,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function normalizePath($path)
     {
+        if (empty($path)) {
+            return '';
+        }
         $path = Normalizer::normalize($path);
 
         if ($this->isPureFtpd) {
@@ -542,23 +496,33 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function isPureFtpdServer()
     {
-        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'HELP');
+        $connection = $this->getConnection();
 
-        $response = '';
-        curl_setopt($this->curl, CURLOPT_HEADERFUNCTION, function ($ch, $string) use (&$response) {
-            $length = strlen($string);
-            $response .= $string;
-
-            return $length;
-        });
-        curl_exec($this->curl);
-
-        $response = explode(PHP_EOL, trim($response));
+        $response = $this->rawCommand('HELP');
         $response = end($response);
 
-        $this->connect();
-
         return stripos($response, 'Pure-FTPd') !== false;
+    }
+
+    /**
+     * Sends an arbitrary command to an FTP server
+     * 
+     * @param  string $command The command to execute
+     * @return array Returns the server's response as an array of strings
+     */
+    protected function rawCommand($command)
+    {
+        $response = '';
+        $callback = function ($ch, $string) use (&$response) {
+            $response .= $string;
+            return strlen($string);
+        };
+        $connection = $this->getConnection();
+        $connection->exec([
+            CURLOPT_CUSTOMREQUEST => $command,
+            CURLOPT_HEADERFUNCTION => $callback,
+        ]);
+        return explode(PHP_EOL, trim($response));
     }
 
     protected function getUrl()
