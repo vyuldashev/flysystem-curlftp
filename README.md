@@ -24,17 +24,15 @@ use League\Flysystem\Filesystem;
 use VladimirYuldashev\Flysystem\CurlFtpAdapter;
 
 $adapter = new CurlFtpAdapter([
-  'protocol' => 'ftps',
   'host' => 'ftp.example.com',
   'port' => 990,
+  'ssl'  => true,   // use the ftps protocol
   'username' => 'ftp-user',
   'password' => 'ftp-password',
 ]);
 
 $filesystem = new Filesystem($adapter);
-```
-
-You case use both `ftp` and `ftps` protocols. 
+``` 
 
 ## Testing
 
