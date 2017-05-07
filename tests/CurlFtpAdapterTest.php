@@ -22,18 +22,10 @@ class CurlFtpAdapterTest extends TestCase
             'type' => 'file',
             'path' => $filename,
             'contents' => $contents,
-            'mimetype' => Util::guessMimeType($this->getResourcesPath() . '/' . $filename, $contents),
+            'mimetype' => Util::guessMimeType($this->getResourceAbsolutePath($filename), $contents),
         ], $result);
 
         $this->assertEquals($contents, $this->getResourceContent($filename));
-
-        $adapter = clone $this->adapter;
-        $adapter->setUsername('foo');
-        $adapter->setPassword('bar');
-        $adapter->connect();
-        $result = $adapter->write($filename, $contents, new Config);
-
-        $this->assertFalse($result);
     }
 
     /**
@@ -55,7 +47,7 @@ class CurlFtpAdapterTest extends TestCase
             'type' => 'file',
             'path' => $filename,
             'contents' => $newContents,
-            'mimetype' => Util::guessMimeType($this->getResourcesPath() . '/' . $filename, $contents),
+            'mimetype' => Util::guessMimeType($this->getResourceAbsolutePath($filename), $contents),
         ], $result);
 
         $this->assertNotEquals($contents, $this->getResourceContent($filename));
@@ -151,13 +143,6 @@ class CurlFtpAdapterTest extends TestCase
         $result = $this->adapter->deleteDir('foo');
 
         $this->assertTrue($result);
-
-        $adapter = clone $this->adapter;
-        $adapter->setUsername('foo');
-        $adapter->setPassword('bar');
-        $adapter->connect();
-
-        $this->assertFalse($adapter->createDir('foo', new Config));
     }
 
     /**
@@ -206,13 +191,6 @@ class CurlFtpAdapterTest extends TestCase
     public function testGetMetadata()
     {
         $this->assertSame(['type' => 'dir', 'path' => ''], $this->adapter->getMetadata(''));
-
-        $adapter = clone $this->adapter;
-        $adapter->setUsername('foo');
-        $adapter->setPassword('bar');
-        $adapter->connect();
-
-        $this->assertFalse($adapter->getMetadata('foo'));
     }
 
     /**
