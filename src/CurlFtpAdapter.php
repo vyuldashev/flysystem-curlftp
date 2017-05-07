@@ -23,23 +23,13 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /** @var string */
     protected $protocol = 'ftp';
 
-    /** @var resource */
-    protected $curl;
+    /** @var Curl */
+    protected $connection;
 
     /**
      * @var bool
      */
     protected $isPureFtpd;
-
-    /**
-     * Constructor.
-     *
-     * @param array $config
-     */
-    public function __construct(array $config)
-    {
-        parent::__construct($config);
-    }
 
     /**
      * Set remote protocol. ftp or ftps.
@@ -73,10 +63,10 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function disconnect()
     {
-        if (isset($this->connection)) {
-            unset($this->connection);
+        if ($this->connection !== null) {
+            $this->connection = null;
         }
-        unset($this->isPureFtpd);
+        $this->isPureFtpd = null;
     }
 
     /**
@@ -86,7 +76,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function isConnected()
     {
-        return isset($this->connection);
+        return $this->connection !== null;
     }
 
     /**
@@ -185,7 +175,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['RNFR ' . $path, 'RNTO ' . $newpath],
+            CURLOPT_POSTQUOTE => ['RNFR ' . $this->getRoot() . '/' . $path, 'RNTO ' . $this->getRoot() . '/' . $newpath],
         ]);
 
         return $result !== false;
@@ -207,7 +197,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return false;
         }
 
-        return $this->write($newpath, $file['contents'], new Config()) !== false;
+        return $this->write($this->getRoot() . '/' . $newpath, $file['contents'], new Config()) !== false;
     }
 
     /**
@@ -222,7 +212,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['DELE ' . $path],
+            CURLOPT_POSTQUOTE => ['DELE ' . $this->getRoot() . '/' . $path],
         ]);
 
         return $result !== false;
@@ -240,7 +230,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['RMD ' . $dirname],
+            CURLOPT_POSTQUOTE => ['RMD ' . $this->getRoot() . '/' . $dirname],
         ]);
 
         return $result !== false;
@@ -259,7 +249,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['MKD ' . $dirname],
+            CURLOPT_POSTQUOTE => ['MKD ' . $this->getRoot() . '/' . $dirname],
         ]);
 
         if ($result === false) {
@@ -357,7 +347,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return ['type' => 'dir', 'path' => ''];
         }
 
-        $request = rtrim('LIST -A ' . $this->normalizePath($path));
+        $request = rtrim('LIST -A ' . $this->normalizePath($this->getRoot() . '/' . $path));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -396,7 +386,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function getTimestamp($path)
     {
-        $response = $this->rawCommand('MDTM ' . $path);
+        $response = $this->rawCommand('MDTM ' . $this->getRoot() . '/' . $path);
         list($code, $time) = explode(' ', end($response), 2);
         if ($code !== '213') {
             return false;
@@ -415,10 +405,10 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     protected function listDirectoryContents($directory, $recursive = false)
     {
         if ($recursive === true) {
-            return $this->listDirectoryContentsRecursive($directory);
+            return $this->listDirectoryContentsRecursive($this->getRoot() . '/' . $directory);
         }
 
-        $request = rtrim('LIST -aln ' . $this->normalizePath($directory));
+        $request = rtrim('LIST -aln ' . $this->normalizePath($this->getRoot() . '/' . $directory));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -440,7 +430,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function listDirectoryContentsRecursive($directory)
     {
-        $request = rtrim('LIST -aln ' . $this->normalizePath($directory));
+        $request = rtrim('LIST -aln ' . $this->normalizePath($this->getRoot() . '/' . $directory));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -452,7 +442,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             if ($item['type'] === 'file') {
                 $output[] = $item;
             } elseif ($item['type'] === 'dir') {
-                $output = array_merge($output, $this->listDirectoryContentsRecursive($item['path']));
+                $output = array_merge($output,
+                    $this->listDirectoryContentsRecursive($this->getRoot() . '/' . $item['path']));
             }
         }
 
@@ -547,6 +538,6 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
     protected function getUrl()
     {
-        return $this->protocol . '://' . $this->getHost() . ':' . $this->getPort();
+        return $this->protocol . '://' . $this->getHost() . ':' . $this->getPort() . '/' . $this->getRoot();
     }
 }
