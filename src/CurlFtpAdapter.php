@@ -460,6 +460,31 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
+     * Normalize a permissions string.
+     *
+     * @param string $permissions
+     *
+     * @return int
+     */
+    protected function normalizePermissions($permissions)
+    {
+        // remove the type identifier
+        $permissions = substr($permissions, 1);
+        // map the string rights to the numeric counterparts
+        $map = ['-' => '0', 'r' => '4', 'w' => '2', 'x' => '1'];
+        $permissions = strtr($permissions, $map);
+        // split up the permission groups
+        $parts = str_split($permissions, 3);
+        // convert the groups
+        $mapper = function ($part) {
+            return array_sum(str_split($part));
+        };
+
+        // converts to decimal number
+        return octdec(implode('', array_map($mapper, $parts)));
+    }
+
+    /**
      * Normalize path depending on server.
      *
      * @param string $path
@@ -500,6 +525,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      * Sends an arbitrary command to an FTP server.
      *
      * @param  string $command The command to execute
+     *
      * @return array Returns the server's response as an array of strings
      */
     protected function rawCommand($command)
