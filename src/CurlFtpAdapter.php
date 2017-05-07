@@ -527,6 +527,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $response = '';
         $callback = function ($ch, $string) use (&$response) {
             $response .= $string;
+
             return strlen($string);
         };
         $connection->exec([
@@ -550,7 +551,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * Check the connection is established
+     * Check the connection is established.
      */
     protected function pingConnection()
     {
