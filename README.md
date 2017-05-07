@@ -4,7 +4,6 @@
 [![License](https://poser.pugx.org/vladimir-yuldashev/flysystem-curlftp/license?format=flat-square)](https://packagist.org/packages/vladimir-yuldashev/flysystem-curlftp)
 [![Build Status](https://img.shields.io/travis/vladimir-yuldashev/flysystem-curlftp/master.svg?style=flat-square)](https://travis-ci.org/vladimir-yuldashev/flysystem-curlftp)
 [![Quality Score](https://img.shields.io/scrutinizer/g/vladimir-yuldashev/flysystem-curlftp.svg?style=flat-square)](https://scrutinizer-ci.com/g/vladimir-yuldashev/flysystem-curlftp)
-[![Coverage](https://img.shields.io/scrutinizer/coverage/g/vladimir-yuldashev/flysystem-curlftp.svg?style=flat-square)](https://scrutinizer-ci.com/g/vladimir-yuldashev/flysystem-curlftp)
 [![StyleCI](https://styleci.io/repos/90028075/shield?branch=master)](https://styleci.io/repos/90028075)
 
 This package contains a [Flysystem](https://flysystem.thephpleague.com/) FTP adapter with cURL implementation.
