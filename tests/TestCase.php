@@ -15,6 +15,7 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        $this->root = getenv('FTP_ADAPTER_ROOT');
         $this->createResourceDir('/');
 
         $this->adapter = new CurlFtpAdapter([
