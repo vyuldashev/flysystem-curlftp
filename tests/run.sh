@@ -27,8 +27,10 @@ docker_compose run wait vsftpd:21 -t 30
 echo 
 echo "Test with root=/chroot"
 FTP_ADAPTER_PORT=221 FTP_ADAPTER_ROOT=/chroot vendor/bin/phpunit
+# remember the exit code of last command
+rc=$?
 # exit if phpunit did not return 0
-if test $? != 0; then error_test $?; fi
+if test $rc != 0; then error_test $rc; fi
 
 # stopping containers
 docker_compose down
@@ -43,8 +45,10 @@ docker_compose run wait pure-ftpd:21 -t 30
 echo 
 echo "Test with root=/chroot"
 FTP_ADAPTER_PORT=222 FTP_ADAPTER_ROOT=/chroot vendor/bin/phpunit
+# remember the exit code of last command
+rc=$?
 # exit if phpunit did not return 0
-if test $? != 0; then error_test $?; fi
+if test $rc != 0; then error_test $rc; fi
 
 # stopping containers
 docker_compose down
