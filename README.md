@@ -25,10 +25,13 @@ use VladimirYuldashev\Flysystem\CurlFtpAdapter;
 
 $adapter = new CurlFtpAdapter([
   'host' => 'ftp.example.com',
-  'port' => 990,
-  'ssl'  => true,   // use the ftps protocol
-  'username' => 'ftp-user',
-  'password' => 'ftp-password',
+  'username' => 'username',
+  'password' => 'password',
+
+  /** optional config settings */
+  'port' => 21,
+  'root' => '/path/to/root',
+  'ssl' => true,
 ]);
 
 $filesystem = new Filesystem($adapter);
