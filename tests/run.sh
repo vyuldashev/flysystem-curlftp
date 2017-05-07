@@ -25,12 +25,6 @@ docker_compose up -d vsftpd
 docker_compose run wait vsftpd:21 -t 30
 
 echo 
-echo "Test with the default root folder"
-FTP_ADAPTER_PORT=221 vendor/bin/phpunit
-# exit if phpunit did not return 0
-if test $? != 0; then error_test $?; fi
-
-echo 
 echo "Test with root=/chroot"
 FTP_ADAPTER_PORT=221 FTP_ADAPTER_ROOT=/chroot vendor/bin/phpunit
 # exit if phpunit did not return 0
@@ -45,12 +39,6 @@ echo "Test ftp adapter with pure-ftpd"
 echo "Launching the pure-ftpd on port 222"
 docker_compose up -d pure-ftpd
 docker_compose run wait pure-ftpd:21 -t 30
-
-echo 
-echo "Test with the default root folder"
-FTP_ADAPTER_PORT=222 vendor/bin/phpunit
-# exit if phpunit did not return 0
-if test $? != 0; then error_test $?; fi
 
 echo 
 echo "Test with root=/chroot"
