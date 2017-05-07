@@ -22,26 +22,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'root',
     ];
 
-    /** @var string */
-    protected $protocol = 'ftp';
-
     /** @var Curl */
     protected $connection;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $isPureFtpd;
-
-    /**
-     * Set remote protocol. ftp or ftps.
-     *
-     * @param string $protocol
-     */
-    public function setProtocol($protocol)
-    {
-        $this->protocol = $protocol;
-    }
 
     /**
      * Establish a connection.
@@ -50,7 +35,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $this->connection = new Curl();
         $this->connection->setOptions([
-            CURLOPT_URL => $this->getUrl(),
+            CURLOPT_URL => $this->getBaseUri(),
             CURLOPT_USERPWD => $this->getUsername() . ':' . $this->getPassword(),
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
@@ -125,7 +110,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_URL => $this->getUrl() . '/' . $path,
+            CURLOPT_URL => $this->getBaseUri() . '/' . $path,
             CURLOPT_UPLOAD => 1,
             CURLOPT_INFILE => $resource,
         ]);
@@ -179,11 +164,19 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $connection = $this->getConnection();
 
-        $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['RNFR ' . $path, 'RNTO ' . $newpath],
-        ]);
+        $response = $this->rawCommand($connection, 'RNFR ' . $path);
+        list($code, $message) = explode(' ', end($response), 2);
+        if ($code !== '350') {
+            return false;
+        }
 
-        return $result !== false;
+        $response = $this->rawCommand($connection, 'RNTO ' . $newpath);
+        list($code, $message) = explode(' ', end($response), 2);
+        if ($code !== '250') {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -216,11 +209,13 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $connection = $this->getConnection();
 
-        $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['DELE ' . $path],
-        ]);
+        $response = $this->rawCommand($connection, 'DELE ' . $path);
+        list($code, $message) = explode(' ', end($response), 2);
+        if ($code !== '250') {
+            return false;
+        }
 
-        return $result !== false;
+        return true;
     }
 
     /**
@@ -234,11 +229,13 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $connection = $this->getConnection();
 
-        $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['RMD ' . $dirname],
-        ]);
+        $response = $this->rawCommand($connection, 'RMD ' . $dirname);
+        list($code, $message) = explode(' ', end($response), 2);
+        if ($code !== '250') {
+            return false;
+        }
 
-        return $result !== false;
+        return true;
     }
 
     /**
@@ -253,11 +250,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $connection = $this->getConnection();
 
-        $result = $connection->exec([
-            CURLOPT_POSTQUOTE => ['MKD ' . $dirname],
-        ]);
-
-        if ($result === false) {
+        $response = $this->rawCommand($connection, 'MKD ' . $dirname);
+        list($code, $message) = explode(' ', end($response), 2);
+        if ($code !== '257') {
             return false;
         }
 
@@ -274,6 +269,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function setVisibility($path, $visibility)
     {
+        $connection = $this->getConnection();
+
         if ($visibility === AdapterInterface::VISIBILITY_PUBLIC) {
             $mode = $this->getPermPublic();
         } else {
@@ -281,7 +278,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         $request = sprintf('SITE CHMOD %o %s', $mode, $path);
-        $response = $this->rawCommand($this->getConnection(), $request);
+        $response = $this->rawCommand($connection, $request);
         list($code, $message) = explode(' ', end($response), 2);
         if ($code !== '200') {
             return false;
@@ -324,7 +321,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_URL => $this->getUrl() . '/' . $path,
+            CURLOPT_URL => $this->getBaseUri() . '/' . $path,
             CURLOPT_FILE => $stream,
         ]);
 
@@ -541,6 +538,29 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
+     * Returns the base url of the connection.
+     *
+     * @return string
+     */
+    protected function getBaseUri()
+    {
+        $protocol = $this->ssl ? 'ftps' : 'ftp';
+
+        return $protocol . '://' . $this->getHost() . ':' . $this->getPort();
+    }
+
+    /**
+     * Check the connection is established
+     */
+    protected function pingConnection()
+    {
+        // We can't use the getConnection, because it will lead to an infinite cycle
+        if ($this->connection->exec() === false) {
+            throw new RuntimeException('Could not connect to host: ' . $this->getHost() . ', port:' . $this->getPort());
+        }
+    }
+
+    /**
      * Set the connection root.
      */
     protected function setConnectionRoot()
@@ -556,21 +576,5 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         if ($code !== '250') {
             throw new RuntimeException('Root is invalid or does not exist: ' . $this->getRoot());
         }
-    }
-
-    /**
-     * Check the connection is established
-     */
-    protected function pingConnection()
-    {
-        // We can't use the getConnection, because it will lead to an infinite cycle
-        if ($this->connection->exec() === false) {
-            throw new RuntimeException('Could not connect to host: ' . $this->getHost() . ', port:' . $this->getPort());
-        }
-    }
-
-    protected function getUrl()
-    {
-        return $this->protocol . '://' . $this->getHost() . ':' . $this->getPort();
     }
 }
