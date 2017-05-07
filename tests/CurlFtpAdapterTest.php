@@ -4,28 +4,9 @@ namespace VladimirYuldashev\Flysystem\Tests;
 
 use League\Flysystem\Util;
 use League\Flysystem\Config;
-use VladimirYuldashev\Flysystem\CurlFtpAdapter;
 
 class CurlFtpAdapterTest extends TestCase
 {
-    /** @var CurlFtpAdapter */
-    protected $adapter;
-
-    public function setUp()
-    {
-        $this->createResourceDir('/');
-
-        $this->adapter = new CurlFtpAdapter([
-            'protocol' => getenv('FTP_ADAPTER_PROTOCOL'),
-            'host' => getenv('FTP_ADAPTER_HOST'),
-            'port' => getenv('FTP_ADAPTER_PORT'),
-            'username' => getenv('FTP_ADAPTER_USER'),
-            'password' => getenv('FTP_ADAPTER_PASSWORD'),
-            'timeout' => getenv('FTP_ADAPTER_TIMEOUT') ?: 35,
-            'root' => $this->root,
-        ]);
-    }
-
     /**
      * @dataProvider filesProvider
      *
@@ -316,10 +297,5 @@ class CurlFtpAdapterTest extends TestCase
             [$this->faker()->word . '/' . $this->randomFileName()],
             [$this->faker()->word . '/' . $this->randomFileName()],
         ];
-    }
-
-    private function randomFileName()
-    {
-        return $this->faker()->name . '.' . $this->faker()->fileExtension;
     }
 }

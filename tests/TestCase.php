@@ -4,10 +4,29 @@ namespace VladimirYuldashev\Flysystem\Tests;
 
 use Faker\Factory;
 use PHPUnit_Framework_TestCase;
+use VladimirYuldashev\Flysystem\CurlFtpAdapter;
 
 abstract class TestCase extends PHPUnit_Framework_TestCase
 {
     protected $root = '';
+
+    /** @var CurlFtpAdapter */
+    protected $adapter;
+
+    public function setUp()
+    {
+        $this->createResourceDir('/');
+
+        $this->adapter = new CurlFtpAdapter([
+            'protocol' => getenv('FTP_ADAPTER_PROTOCOL'),
+            'host' => getenv('FTP_ADAPTER_HOST'),
+            'port' => getenv('FTP_ADAPTER_PORT'),
+            'username' => getenv('FTP_ADAPTER_USER'),
+            'password' => getenv('FTP_ADAPTER_PASSWORD'),
+            'timeout' => getenv('FTP_ADAPTER_TIMEOUT') ?: 35,
+            'root' => $this->root,
+        ]);
+    }
 
     public function tearDown()
     {
@@ -53,6 +72,11 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
         $this->createResourceDir(dirname($path));
         $absolutePath = $this->getResourceAbsolutePath($path);
         file_put_contents($absolutePath, $filedata);
+    }
+
+    protected function randomFileName()
+    {
+        return $this->faker()->name . '.' . $this->faker()->fileExtension;
     }
 
     protected function faker()
