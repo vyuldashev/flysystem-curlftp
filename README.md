@@ -33,6 +33,7 @@ $adapter = new CurlFtpAdapter([
   'root' => '/path/to/root',
   'utf8' => true,
   'ssl' => true,
+  'timeout' => 90,		// connect timeout
 ]);
 
 $filesystem = new Filesystem($adapter);

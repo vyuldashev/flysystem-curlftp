@@ -20,6 +20,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'root',
         'ssl',
         'utf8',
+        'timeout',
     ];
 
     /** @var Curl */
@@ -50,10 +51,14 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             CURLOPT_USERPWD => $this->getUsername() . ':' . $this->getPassword(),
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_FTP_SSL => CURLFTPSSL_TRY,
             CURLOPT_FTPSSLAUTH => CURLFTPAUTH_TLS,
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => $this->getTimeout(),
         ]);
+
+        if ($this->ssl) {
+            $this->connection->setOption(CURLOPT_FTP_SSL, CURLFTPSSL_ALL);
+        }
 
         $this->pingConnection();
         $this->setUtf8Mode();
