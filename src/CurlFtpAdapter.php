@@ -20,6 +20,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'password',
         'root',
         'ssl',
+        'timeout',
     ];
 
     /** @var Curl */
@@ -41,6 +42,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FTPSSLAUTH => CURLFTPAUTH_TLS,
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => $this->getTimeout(),
         ]);
 
         if ($this->ssl) {
