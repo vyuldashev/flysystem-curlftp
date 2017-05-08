@@ -26,6 +26,7 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
             'password' => getenv('FTP_ADAPTER_PASSWORD'),
             'timeout' => getenv('FTP_ADAPTER_TIMEOUT') ?: 35,
             'root' => $this->root,
+            'utf8' => true,
         ]);
     }
 
