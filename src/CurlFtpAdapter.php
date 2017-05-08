@@ -39,10 +39,13 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             CURLOPT_USERPWD => $this->getUsername() . ':' . $this->getPassword(),
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_FTP_SSL => CURLFTPSSL_TRY,
             CURLOPT_FTPSSLAUTH => CURLFTPAUTH_TLS,
             CURLOPT_RETURNTRANSFER => true,
         ]);
+
+        if ($this->ssl) {
+            $this->connection->setOption(CURLOPT_FTP_SSL, CURLFTPSSL_ALL);
+        }
 
         $this->pingConnection();
         $this->setConnectionRoot();
