@@ -14,12 +14,12 @@ use League\Flysystem\Adapter\AbstractFtpAdapter;
 class CurlFtpAdapter extends AbstractFtpAdapter
 {
     protected $configurable = [
-        'protocol',
         'host',
         'port',
         'username',
         'password',
         'root',
+        'ssl',
     ];
 
     /** @var Curl */
@@ -165,18 +165,15 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $response = $this->rawCommand($connection, 'RNFR ' . $path);
-        list($code, $message) = explode(' ', end($response), 2);
-        if ($code !== '350') {
+        list($code) = explode(' ', end($response), 2);
+        if ((int) $code !== 350) {
             return false;
         }
 
         $response = $this->rawCommand($connection, 'RNTO ' . $newpath);
-        list($code, $message) = explode(' ', end($response), 2);
-        if ($code !== '250') {
-            return false;
-        }
+        list($code) = explode(' ', end($response), 2);
 
-        return true;
+        return (int) $code === 250;
     }
 
     /**
@@ -210,12 +207,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $response = $this->rawCommand($connection, 'DELE ' . $path);
-        list($code, $message) = explode(' ', end($response), 2);
-        if ($code !== '250') {
-            return false;
-        }
+        list($code) = explode(' ', end($response), 2);
 
-        return true;
+        return (int) $code === 250;
     }
 
     /**
@@ -230,12 +224,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $response = $this->rawCommand($connection, 'RMD ' . $dirname);
-        list($code, $message) = explode(' ', end($response), 2);
-        if ($code !== '250') {
-            return false;
-        }
+        list($code) = explode(' ', end($response), 2);
 
-        return true;
+        return (int) $code === 250;
     }
 
     /**
@@ -251,8 +242,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $response = $this->rawCommand($connection, 'MKD ' . $dirname);
-        list($code, $message) = explode(' ', end($response), 2);
-        if ($code !== '257') {
+        list($code) = explode(' ', end($response), 2);
+        if ((int) $code !== 257) {
             return false;
         }
 
@@ -279,8 +270,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         $request = sprintf('SITE CHMOD %o %s', $mode, $path);
         $response = $this->rawCommand($connection, $request);
-        list($code, $message) = explode(' ', end($response), 2);
-        if ($code !== '200') {
+        list($code) = explode(' ', end($response), 2);
+        if ((int) $code !== 200) {
             return false;
         }
 
@@ -444,8 +435,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             if ($item['type'] === 'file') {
                 $output[] = $item;
             } elseif ($item['type'] === 'dir') {
-                $output = array_merge($output,
-                    $this->listDirectoryContentsRecursive($item['path']));
+                $output = array_merge($output, $this->listDirectoryContentsRecursive($item['path']));
             }
         }
 
@@ -505,7 +495,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function isPureFtpdServer()
     {
-        if (!isset($this->isPureFtpd)) {
+        if ($this->isPureFtpd === null) {
             $response = $this->rawCommand($this->getConnection(), 'HELP');
             $response = end($response);
             $this->isPureFtpd = stripos($response, 'Pure-FTPd') !== false;
@@ -517,8 +507,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Sends an arbitrary command to an FTP server.
      *
-     * @param  Curl $connection The CURL instance
-     * @param  string $command The command to execute
+     * @param  Curl   $connection The CURL instance
+     * @param  string $command    The command to execute
      *
      * @return array Returns the server's response as an array of strings
      */
@@ -573,8 +563,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         // We can't use the getConnection, because it will lead to an infinite cycle
         $response = $this->rawCommand($this->connection, 'CWD ' . $root);
-        list($code, $message) = explode(' ', end($response), 2);
-        if ($code !== '250') {
+        list($code) = explode(' ', end($response), 2);
+        if ((int) $code !== 250) {
             throw new RuntimeException('Root is invalid or does not exist: ' . $this->getRoot());
         }
     }
