@@ -3,7 +3,6 @@
 namespace VladimirYuldashev\Flysystem;
 
 use DateTime;
-use Normalizer;
 use RuntimeException;
 use League\Flysystem\Util;
 use League\Flysystem\Config;
@@ -20,6 +19,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'password',
         'root',
         'ssl',
+        'utf8',
         'timeout',
     ];
 
@@ -28,6 +28,17 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
     /** @var bool */
     protected $isPureFtpd;
+
+    /** @var bool */
+    protected $utf8 = false;
+
+    /**
+     * @param bool $utf8
+     */
+    public function setUtf8($utf8)
+    {
+        $this->utf8 = (bool) $utf8;
+    }
 
     /**
      * Establish a connection.
@@ -50,6 +61,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         $this->pingConnection();
+        $this->setUtf8Mode();
         $this->setConnectionRoot();
     }
 
@@ -484,7 +496,6 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         if (empty($path)) {
             return '';
         }
-        $path = Normalizer::normalize($path);
 
         if ($this->isPureFtpdServer()) {
             $path = str_replace(' ', '\ ', $path);
@@ -553,6 +564,24 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         // We can't use the getConnection, because it will lead to an infinite cycle
         if ($this->connection->exec() === false) {
             throw new RuntimeException('Could not connect to host: ' . $this->getHost() . ', port:' . $this->getPort());
+        }
+    }
+
+    /**
+     * Set the connection to UTF-8 mode.
+     */
+    protected function setUtf8Mode()
+    {
+        if (!$this->utf8) {
+            return;
+        }
+
+        $response = $this->rawCommand($this->connection, 'OPTS UTF8 ON');
+        list($code, $message) = explode(' ', end($response), 2);
+        if ($code !== '200') {
+            throw new RuntimeException(
+                'Could not set UTF-8 mode for connection: ' . $this->getHost() . '::' . $this->getPort()
+            );
         }
     }
 

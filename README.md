@@ -31,6 +31,7 @@ $adapter = new CurlFtpAdapter([
   /** optional config settings */
   'port' => 21,
   'root' => '/path/to/root',
+  'utf8' => true,
   'ssl' => true,
   'timeout' => 90,		// connect timeout
 ]);
