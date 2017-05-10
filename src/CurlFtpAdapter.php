@@ -3,6 +3,7 @@
 namespace VladimirYuldashev\Flysystem;
 
 use DateTime;
+use Normalizer;
 use RuntimeException;
 use League\Flysystem\Util;
 use League\Flysystem\Config;
@@ -496,6 +497,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         if (empty($path)) {
             return '';
         }
+
+        $path = Normalizer::normalize($path);
 
         if ($this->isPureFtpdServer()) {
             $path = str_replace(' ', '\ ', $path);
