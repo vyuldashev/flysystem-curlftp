@@ -34,6 +34,14 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     protected $utf8 = false;
 
     /**
+     * @param bool $ssl
+     */
+    public function setSsl($ssl)
+    {
+        $this->ssl = (bool) $ssl;
+    }
+
+    /**
      * @param bool $utf8
      */
     public function setUtf8($utf8)
