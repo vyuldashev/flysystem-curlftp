@@ -432,7 +432,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
         if ($result === false) {
-            return false;
+            return [];
         }
 
         if ($directory === '/') {
