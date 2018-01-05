@@ -13,7 +13,7 @@ error_test()
 
 # creating directory for resources
 if test ! -d "tests/resources"; then
-	mkdir -m=0777 "tests/resources"
+	mkdir -m 0777 "tests/resources"
 	if test $? != 0; then exit 1; fi
 fi
 

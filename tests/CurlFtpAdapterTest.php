@@ -245,6 +245,16 @@ class CurlFtpAdapterTest extends TestCase
         $this->assertCount(1, $this->adapter->listContents(dirname($path)));
     }
 
+    /**
+     * @dataProvider withSubFolderProvider
+     *
+     * @param $path
+     */
+    public function testListContentsEmptyPath($path)
+    {
+        $this->assertCount(0, $this->adapter->listContents(dirname($path)));
+    }
+
     public function filesProvider()
     {
         return [
