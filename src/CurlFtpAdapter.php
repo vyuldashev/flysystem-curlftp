@@ -141,8 +141,6 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $this->connection->setOptions([
             CURLOPT_URL => $this->getBaseUri(),
             CURLOPT_USERPWD => $this->getUsername().':'.$this->getPassword(),
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FTPSSLAUTH => CURLFTPAUTH_TLS,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT => $this->getTimeout(),
