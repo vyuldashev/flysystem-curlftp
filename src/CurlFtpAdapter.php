@@ -102,7 +102,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @return bool
      */
-    protected function hasConnectionReachedTimeout() {
+    protected function hasConnectionReachedTimeout()
+    {
         return $this->connectionTimestamp + $this->getTimeout() < time();
     }
 
