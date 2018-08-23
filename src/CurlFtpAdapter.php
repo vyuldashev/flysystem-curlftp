@@ -27,6 +27,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /** @var Curl */
     protected $connection;
 
+    /** @var int unix timestamp when connection was established */
+    protected $connectionTimestamp = 0;
+
     /** @var bool */
     protected $isPureFtpd;
 
@@ -70,6 +73,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         $this->pingConnection();
+        $this->connectionTimestamp = time();
         $this->setUtf8Mode();
         $this->setConnectionRoot();
     }
@@ -92,7 +96,15 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function isConnected()
     {
-        return $this->connection !== null;
+        return $this->connection !== null && !$this->hasConnectionReachedTimeout();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasConnectionReachedTimeout()
+    {
+        return $this->connectionTimestamp + $this->getTimeout() < time();
     }
 
     /**
