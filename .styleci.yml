@@ -1,8 +1,6 @@
 preset: laravel
 
-linting: true
-
 disabled:
 - simplified_null_return
 - not_operator_with_successor_space
-- concat_without_spaces
+- self_accessor
