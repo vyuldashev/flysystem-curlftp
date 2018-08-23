@@ -279,11 +279,11 @@ class CurlFtpAdapterTest extends TestCase
             ['test 1/test.txt'],
             ['test/test 1.txt'],
             ['test  1/test  2.txt'],
-            [$this->faker()->word . '/' . $this->randomFileName()],
-            [$this->faker()->word . '/' . $this->randomFileName()],
-            [$this->faker()->word . '/' . $this->randomFileName()],
-            [$this->faker()->word . '/' . $this->randomFileName()],
-            [$this->faker()->word . '/' . $this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
         ];
     }
 }

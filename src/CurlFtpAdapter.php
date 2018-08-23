@@ -60,7 +60,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $this->connection = new Curl();
         $this->connection->setOptions([
             CURLOPT_URL => $this->getBaseUri(),
-            CURLOPT_USERPWD => $this->getUsername() . ':' . $this->getPassword(),
+            CURLOPT_USERPWD => $this->getUsername().':'.$this->getPassword(),
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FTPSSLAUTH => CURLFTPAUTH_TLS,
@@ -148,7 +148,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_URL => $this->getBaseUri() . '/' . $path,
+            CURLOPT_URL => $this->getBaseUri().'/'.$path,
             CURLOPT_UPLOAD => 1,
             CURLOPT_INFILE => $resource,
         ]);
@@ -202,13 +202,13 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $connection = $this->getConnection();
 
-        $response = $this->rawCommand($connection, 'RNFR ' . $path);
+        $response = $this->rawCommand($connection, 'RNFR '.$path);
         list($code) = explode(' ', end($response), 2);
         if ((int) $code !== 350) {
             return false;
         }
 
-        $response = $this->rawCommand($connection, 'RNTO ' . $newpath);
+        $response = $this->rawCommand($connection, 'RNTO '.$newpath);
         list($code) = explode(' ', end($response), 2);
 
         return (int) $code === 250;
@@ -244,7 +244,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $connection = $this->getConnection();
 
-        $response = $this->rawCommand($connection, 'DELE ' . $path);
+        $response = $this->rawCommand($connection, 'DELE '.$path);
         list($code) = explode(' ', end($response), 2);
 
         return (int) $code === 250;
@@ -261,7 +261,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $connection = $this->getConnection();
 
-        $response = $this->rawCommand($connection, 'RMD ' . $dirname);
+        $response = $this->rawCommand($connection, 'RMD '.$dirname);
         list($code) = explode(' ', end($response), 2);
 
         return (int) $code === 250;
@@ -279,7 +279,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $connection = $this->getConnection();
 
-        $response = $this->rawCommand($connection, 'MKD ' . $dirname);
+        $response = $this->rawCommand($connection, 'MKD '.$dirname);
         list($code) = explode(' ', end($response), 2);
         if ((int) $code !== 257) {
             return false;
@@ -350,7 +350,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_URL => $this->getBaseUri() . '/' . $path,
+            CURLOPT_URL => $this->getBaseUri().'/'.$path,
             CURLOPT_FILE => $stream,
         ]);
 
@@ -378,7 +378,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return ['type' => 'dir', 'path' => ''];
         }
 
-        $request = rtrim('LIST -A ' . $this->normalizePath($path));
+        $request = rtrim('LIST -A '.$this->normalizePath($path));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -417,7 +417,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function getTimestamp($path)
     {
-        $response = $this->rawCommand($this->getConnection(), 'MDTM ' . $path);
+        $response = $this->rawCommand($this->getConnection(), 'MDTM '.$path);
         list($code, $time) = explode(' ', end($response), 2);
         if ($code !== '213') {
             return false;
@@ -439,7 +439,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return $this->listDirectoryContentsRecursive($directory);
         }
 
-        $request = rtrim('LIST -aln ' . $this->normalizePath($directory));
+        $request = rtrim('LIST -aln '.$this->normalizePath($directory));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -461,7 +461,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function listDirectoryContentsRecursive($directory)
     {
-        $request = rtrim('LIST -aln ' . $this->normalizePath($directory));
+        $request = rtrim('LIST -aln '.$this->normalizePath($directory));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -576,7 +576,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $protocol = $this->ssl ? 'ftps' : 'ftp';
 
-        return $protocol . '://' . $this->getHost() . ':' . $this->getPort();
+        return $protocol.'://'.$this->getHost().':'.$this->getPort();
     }
 
     /**
@@ -586,7 +586,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         // We can't use the getConnection, because it will lead to an infinite cycle
         if ($this->connection->exec() === false) {
-            throw new RuntimeException('Could not connect to host: ' . $this->getHost() . ', port:' . $this->getPort());
+            throw new RuntimeException('Could not connect to host: '.$this->getHost().', port:'.$this->getPort());
         }
     }
 
@@ -603,7 +603,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         list($code, $message) = explode(' ', end($response), 2);
         if ($code !== '200') {
             throw new RuntimeException(
-                'Could not set UTF-8 mode for connection: ' . $this->getHost() . '::' . $this->getPort()
+                'Could not set UTF-8 mode for connection: '.$this->getHost().'::'.$this->getPort()
             );
         }
     }
@@ -619,10 +619,10 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         // We can't use the getConnection, because it will lead to an infinite cycle
-        $response = $this->rawCommand($this->connection, 'CWD ' . $root);
+        $response = $this->rawCommand($this->connection, 'CWD '.$root);
         list($code) = explode(' ', end($response), 2);
         if ((int) $code !== 250) {
-            throw new RuntimeException('Root is invalid or does not exist: ' . $this->getRoot());
+            throw new RuntimeException('Root is invalid or does not exist: '.$this->getRoot());
         }
     }
 }
