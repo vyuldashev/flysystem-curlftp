@@ -34,6 +34,8 @@ $adapter = new CurlFtpAdapter([
   'utf8' => true,
   'ssl' => true,
   'timeout' => 90,		// connect timeout
+  
+  /** proxy settings */
   'proxyHost' => 'proxy-server.example.com',
   'proxyPort' => 80,
   'proxyUsername' => 'proxyuser',
