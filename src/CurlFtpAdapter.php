@@ -154,12 +154,12 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         if ($proxyUrl = $this->getProxyHost()) {
             $proxyPort = $this->getProxyPort();
-            $this->connection->setOption(CURLOPT_PROXY, $proxyPort ? $proxyUrl . ':' . $proxyPort : $proxyUrl);
+            $this->connection->setOption(CURLOPT_PROXY, $proxyPort ? $proxyUrl.':'.$proxyPort : $proxyUrl);
             $this->connection->setOption(CURLOPT_HTTPPROXYTUNNEL, true);
         }
 
         if ($username = $this->getProxyUsername()) {
-            $this->connection->setOption(CURLOPT_PROXYUSERPWD, $username . ':' . $this->getProxyPassword());
+            $this->connection->setOption(CURLOPT_PROXYUSERPWD, $username.':'.$this->getProxyPassword());
         }
 
         $this->pingConnection();
