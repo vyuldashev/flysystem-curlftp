@@ -34,6 +34,10 @@ $adapter = new CurlFtpAdapter([
   'utf8' => true,
   'ssl' => true,
   'timeout' => 90,		// connect timeout
+  'proxyHost' => 'proxy-server.example.com',
+  'proxyPort' => 80,
+  'proxyUsername' => 'proxyuser',
+  'proxyPassword' => 'proxypassword',
 ]);
 
 $filesystem = new Filesystem($adapter);

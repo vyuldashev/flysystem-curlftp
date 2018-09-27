@@ -22,6 +22,10 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'ssl',
         'utf8',
         'timeout',
+        'proxyHost',
+        'proxyPort',
+        'proxyUsername',
+        'proxyPassword',
     ];
 
     /** @var Curl */
@@ -35,6 +39,18 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
     /** @var bool */
     protected $utf8 = false;
+
+    /** @var string */
+    protected $proxyHost;
+
+    /** @var int */
+    protected $proxyPort;
+
+    /** @var string */
+    protected $proxyUsername;
+
+    /** @var string */
+    protected $proxyPassword;
 
     /**
      * @param bool $ssl
@@ -50,6 +66,70 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     public function setUtf8($utf8)
     {
         $this->utf8 = (bool) $utf8;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProxyHost()
+    {
+        return $this->proxyHost;
+    }
+
+    /**
+     * @param string $proxyHost
+     */
+    public function setProxyHost($proxyHost)
+    {
+        $this->proxyHost = $proxyHost;
+    }
+
+    /**
+     * @return int
+     */
+    public function getProxyPort()
+    {
+        return $this->proxyPort;
+    }
+
+    /**
+     * @param int $proxyPort
+     */
+    public function setProxyPort($proxyPort)
+    {
+        $this->proxyPort = $proxyPort;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProxyUsername()
+    {
+        return $this->proxyUsername;
+    }
+
+    /**
+     * @param string $proxyUsername
+     */
+    public function setProxyUsername($proxyUsername)
+    {
+        $this->proxyUsername = $proxyUsername;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProxyPassword()
+    {
+        return $this->proxyPassword;
+    }
+
+    /**
+     * @param string $proxyPassword
+     */
+    public function setProxyPassword($proxyPassword)
+    {
+        $this->proxyPassword = $proxyPassword;
     }
 
     /**
@@ -70,6 +150,16 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         if ($this->ssl) {
             $this->connection->setOption(CURLOPT_FTP_SSL, CURLFTPSSL_ALL);
+        }
+
+        if ($proxyUrl = $this->getProxyHost()) {
+            $proxyPort = $this->getProxyPort();
+            $this->connection->setOption(CURLOPT_PROXY, $proxyPort ? $proxyUrl.':'.$proxyPort : $proxyUrl);
+            $this->connection->setOption(CURLOPT_HTTPPROXYTUNNEL, true);
+        }
+
+        if ($username = $this->getProxyUsername()) {
+            $this->connection->setOption(CURLOPT_PROXYUSERPWD, $username.':'.$this->getProxyPassword());
         }
 
         $this->pingConnection();
