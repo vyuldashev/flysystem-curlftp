@@ -39,11 +39,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /** @var bool */
     protected $isPureFtpd;
 
-    /** @var @bool */
-    protected $sslVerifyPeer = true;
+    /** @var @int */
+    protected $sslVerifyPeer = 1;
 
-    /** @var @bool */
-    protected $sslVerifyHost = true;
+    /** @var @int */
+    protected $sslVerifyHost = 2;
 
     /** @var bool */
     protected $utf8 = false;
@@ -69,19 +69,19 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param bool $sslVerifyPeer
+     * @param int $sslVerifyPeer
      */
     public function setSslVerifyPeer($sslVerifyPeer)
     {
-        $this->sslVerifyPeer = (bool) $sslVerifyPeer;
+        $this->sslVerifyPeer = $sslVerifyPeer;
     }
 
     /**
-     * @param bool $sslVerifyHost
+     * @param int $sslVerifyHost
      */
     public function setSslVerifyHost($sslVerifyHost)
     {
-        $this->sslVerifyHost = (bool) $sslVerifyHost;
+        $this->sslVerifyHost = $sslVerifyHost;
     }
 
     /**
