@@ -20,6 +20,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'password',
         'root',
         'ssl',
+        'sslVerifyPeer',
+        'sslVerifyHost',
         'utf8',
         'timeout',
         'proxyHost',
@@ -36,6 +38,12 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
     /** @var bool */
     protected $isPureFtpd;
+
+    /** @var @bool */
+    protected $sslVerifyPeer = true;
+
+    /** @var @bool */
+    protected $sslVerifyHost = true;
 
     /** @var bool */
     protected $utf8 = false;
@@ -58,6 +66,22 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     public function setSsl($ssl)
     {
         $this->ssl = (bool) $ssl;
+    }
+
+    /**
+     * @param bool $sslVerifyPeer
+     */
+    public function setSslVerifyPeer($sslVerifyPeer)
+    {
+        $this->sslVerifyPeer = (bool) $sslVerifyPeer;
+    }
+
+    /**
+     * @param bool $sslVerifyHost
+     */
+    public function setSslVerifyHost($sslVerifyHost)
+    {
+        $this->sslVerifyHost = (bool) $sslVerifyHost;
     }
 
     /**
@@ -149,6 +173,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         if ($this->ssl) {
             $this->connection->setOption(CURLOPT_FTP_SSL, CURLFTPSSL_ALL);
         }
+
+        $this->connection->setOption(CURLOPT_SSL_VERIFYHOST, $this->sslVerifyHost);
+        $this->connection->setOption(CURLOPT_SSL_VERIFYPEER, $this->sslVerifyPeer);
 
         if ($proxyUrl = $this->getProxyHost()) {
             $proxyPort = $this->getProxyPort();
