@@ -513,7 +513,16 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return false;
         }
 
-        $datetime = DateTime::createFromFormat('YmdHis', $time);
+        if(strpos($time, '.')) {
+            $datetime = DateTime::createFromFormat('YmdHis.u', $time);
+        }
+        else {
+            $datetime = DateTime::createFromFormat('YmdHis', $time);
+        }
+
+        if(!$datetime) {
+            return false;
+        }
 
         return ['path' => $path, 'timestamp' => $datetime->getTimestamp()];
     }
