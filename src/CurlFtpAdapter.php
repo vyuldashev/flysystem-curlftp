@@ -513,14 +513,13 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return false;
         }
 
-        if(strpos($time, '.')) {
+        if (strpos($time, '.')) {
             $datetime = DateTime::createFromFormat('YmdHis.u', $time);
-        }
-        else {
+        } else {
             $datetime = DateTime::createFromFormat('YmdHis', $time);
         }
 
-        if(!$datetime) {
+        if (!$datetime) {
             return false;
         }
 
