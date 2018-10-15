@@ -20,6 +20,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'password',
         'root',
         'ssl',
+        'sslVerifyPeer',
+        'sslVerifyHost',
         'utf8',
         'timeout',
         'proxyHost',
@@ -36,6 +38,12 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
     /** @var bool */
     protected $isPureFtpd;
+
+    /** @var @int */
+    protected $sslVerifyPeer = 1;
+
+    /** @var @int */
+    protected $sslVerifyHost = 2;
 
     /** @var bool */
     protected $utf8 = false;
@@ -58,6 +66,22 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     public function setSsl($ssl)
     {
         $this->ssl = (bool) $ssl;
+    }
+
+    /**
+     * @param int $sslVerifyPeer
+     */
+    public function setSslVerifyPeer($sslVerifyPeer)
+    {
+        $this->sslVerifyPeer = $sslVerifyPeer;
+    }
+
+    /**
+     * @param int $sslVerifyHost
+     */
+    public function setSslVerifyHost($sslVerifyHost)
+    {
+        $this->sslVerifyHost = $sslVerifyHost;
     }
 
     /**
@@ -141,8 +165,6 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $this->connection->setOptions([
             CURLOPT_URL => $this->getBaseUri(),
             CURLOPT_USERPWD => $this->getUsername().':'.$this->getPassword(),
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_FTPSSLAUTH => CURLFTPAUTH_TLS,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT => $this->getTimeout(),
@@ -151,6 +173,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         if ($this->ssl) {
             $this->connection->setOption(CURLOPT_FTP_SSL, CURLFTPSSL_ALL);
         }
+
+        $this->connection->setOption(CURLOPT_SSL_VERIFYHOST, $this->sslVerifyHost);
+        $this->connection->setOption(CURLOPT_SSL_VERIFYPEER, $this->sslVerifyPeer);
 
         if ($proxyUrl = $this->getProxyHost()) {
             $proxyPort = $this->getProxyPort();
