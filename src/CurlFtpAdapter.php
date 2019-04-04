@@ -319,7 +319,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         $moveCommands = [
             'RNFR '.$path,
-            'RNTO '.$newpath
+            'RNTO '.$newpath,
         ];
 
         $response = $this->rawPost($connection, $moveCommands);
@@ -691,7 +691,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
     /**
      * Sends an arbitrary command to an FTP server using POSTQUOTE option. This makes sure all commands are run
-     * in succession and increases chance of success for complex operations like "move/rename file"
+     * in succession and increases chance of success for complex operations like "move/rename file".
      *
      * @param  Curl  $connection The CURL instance
      * @param  array $commandsArray    The commands to execute
