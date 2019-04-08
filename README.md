@@ -36,6 +36,7 @@ $adapter = new CurlFtpAdapter([
   'timeout' => 90,		// connect timeout
   'sslVerifyPeer' => 0, // using 0 is insecure, use it only if you know what you're doing
   'sslVerifyHost' => 0, // using 0 is insecure, use it only if you know what you're doing
+  'enableTimestampsOnUnixListings' => true,
   
   /** proxy settings */
   'proxyHost' => 'proxy-server.example.com',
