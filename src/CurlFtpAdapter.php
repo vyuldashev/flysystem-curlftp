@@ -31,7 +31,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'proxyPort',
         'proxyUsername',
         'proxyPassword',
-        'verbose'
+        'verbose',
     ];
 
     /** @var Curl */
@@ -222,7 +222,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         if (! $this->passive) {
-            $this->connection->setOption(CURLOPT_FTPPORT, "-");
+            $this->connection->setOption(CURLOPT_FTPPORT, '-');
         }
 
         if ($this->skipPasvIp) {
