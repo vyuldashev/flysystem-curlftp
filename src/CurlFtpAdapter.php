@@ -73,8 +73,6 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /** @var bool */
     protected $verbose = false;
 
-
-
     /**
      * @param bool $ftps
      */
@@ -221,7 +219,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             $this->connection->setOption(CURLOPT_USE_SSL, CURLFTPSSL_ALL);
         }
 
-        if (! $this->passive) {
+        if (!$this->passive) {
             $this->connection->setOption(CURLOPT_FTPPORT, '-');
         }
 
