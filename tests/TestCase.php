@@ -31,7 +31,7 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
             'ftps' => false, // use ftps:// with implicit TLS or ftp:// with explicit TLS
             'passive' => true, // default use PASV mode
             'skipPasvIp' => false, // ignore the IP address in the PASV response
-            'verbose' => false // set verbose mode on/off
+            'verbose' => false, // set verbose mode on/off
         ]);
     }
 
