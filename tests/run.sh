@@ -12,8 +12,8 @@ error_test()
 }
 
 # creating directory for resources
-if test ! -d "tests/resources/chroot"; then
-	mkdir -p -m 0777 "tests/resources/chroot"
+if test ! -d "tests/resources"; then
+	mkdir -m 0777 "tests/resources"
 	if test $? != 0; then exit 1; fi
 fi
 
@@ -25,8 +25,8 @@ docker_compose up -d vsftpd
 docker_compose run wait vsftpd:21 -t 30
 
 echo 
-echo "Test with root=/chroot"
-FTP_ADAPTER_PORT=221 FTP_ADAPTER_ROOT=/chroot vendor/bin/phpunit
+echo "Test with root=/"
+FTP_ADAPTER_PORT=221 FTP_ADAPTER_ROOT=/ vendor/bin/phpunit
 # remember the exit code of last command
 rc=$?
 # exit if phpunit did not return 0
@@ -43,8 +43,8 @@ docker_compose up -d pure-ftpd
 docker_compose run wait pure-ftpd:21 -t 30
 
 echo 
-echo "Test with root=/chroot"
-FTP_ADAPTER_PORT=222 FTP_ADAPTER_ROOT=/chroot vendor/bin/phpunit
+echo "Test with root=/"
+FTP_ADAPTER_PORT=222 FTP_ADAPTER_ROOT=/ vendor/bin/phpunit
 # remember the exit code of last command
 rc=$?
 # exit if phpunit did not return 0
