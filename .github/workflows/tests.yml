@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      max-parallel: 2
       fail-fast: true
       matrix:
         php: [7.2, 7.3, 7.4, 8.0]
@@ -47,4 +46,6 @@ jobs:
         run: composer run test:style
 
       - name: Execute tests
-        run: sudo composer run test:unit
+        run: |
+            composer config --global process-timeout 2000
+            sudo composer run test:unit
