@@ -52,10 +52,6 @@ $filesystem = new Filesystem($adapter);
 $ composer test
 ```
 
-## Security
-
-If you discover any security related issues, please email misterio92@gmail.com instead of using the issue tracker.
-
 ## License
 
 The MIT License (MIT). Please see [License File](LICENSE) for more information.
