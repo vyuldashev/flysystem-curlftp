@@ -35,6 +35,11 @@
             "VladimirYuldashev\\Flysystem\\Tests\\": "tests"
         }
     },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0-dev"
+        }
+    },
     "scripts": {
         "test": [
             "@test:style",
