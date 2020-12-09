@@ -1,10 +1,9 @@
 # Flysystem Adapter for the FTP with cURL implementation
 
-[![Latest Stable Version](https://poser.pugx.org/vyuldashev/flysystem-curlftp/v/stable?format=flat-square)](https://packagist.org/packages/vyuldashev/flysystem-curlftp)
+[![Latest Stable Version](https://poser.pugx.org/vladimir-yuldashev/flysystem-curlftp/v/stable?format=flat-square)](https://packagist.org/packages/vladimir-yuldashev/flysystem-curlftp)
 [![Build Status](https://github.com/vyuldashev/flysystem-curlftp/workflows/Tests/badge.svg)](https://github.com/vyuldashev/flysystem-curlftp/actions)
 [![StyleCI](https://styleci.io/repos/90028075/shield?branch=master)](https://styleci.io/repos/90028075)
-[![Quality Score](https://img.shields.io/scrutinizer/g/vyuldashev/flysystem-curlftp.svg?style=flat-square)](https://scrutinizer-ci.com/g/vyuldashev/flysystem-curlftp)
-[![License](https://poser.pugx.org/vyuldashev/flysystem-curlftp/license?format=flat-square)](https://packagist.org/packages/vyuldashev/flysystem-curlftp)
+[![License](https://poser.pugx.org/vladimir-yuldashev/flysystem-curlftp/license?format=flat-square)](https://packagist.org/packages/vladimir-yuldashev/flysystem-curlftp)
 
 This package contains a [Flysystem](https://flysystem.thephpleague.com/) FTP adapter with cURL implementation.
 It supports both explicit and implicit SSL connections.
