@@ -46,8 +46,7 @@
             "@test:unit"
         ],
         "test:style": "@php vendor/bin/php-cs-fixer fix --config=.php_cs.dist --allow-risky=yes --dry-run --diff --verbose",
-        "test:unit": "@php vendor/bin/phpunit",
-        "cs": "php-cs-fixer fix --allow-risky=yes",
+        "test:unit": "sh tests/run.sh",
         "fix:style": "@php vendor/bin/php-cs-fixer fix --config=.php_cs.dist --allow-risky=yes --diff --verbose"
     },
     "minimum-stability": "dev",
