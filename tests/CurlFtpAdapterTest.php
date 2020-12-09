@@ -2,8 +2,8 @@
 
 namespace VladimirYuldashev\Flysystem\Tests;
 
-use League\Flysystem\Util;
 use League\Flysystem\Config;
+use League\Flysystem\Util;
 
 class CurlFtpAdapterTest extends TestCase
 {

@@ -3,13 +3,13 @@
 namespace VladimirYuldashev\Flysystem;
 
 use DateTime;
+use League\Flysystem\Adapter\AbstractFtpAdapter;
+use League\Flysystem\AdapterInterface;
+use League\Flysystem\Config;
+use League\Flysystem\Util;
+use League\Flysystem\Util\MimeType;
 use Normalizer;
 use RuntimeException;
-use League\Flysystem\Util;
-use League\Flysystem\Config;
-use League\Flysystem\Util\MimeType;
-use League\Flysystem\AdapterInterface;
-use League\Flysystem\Adapter\AbstractFtpAdapter;
 
 class CurlFtpAdapter extends AbstractFtpAdapter
 {
