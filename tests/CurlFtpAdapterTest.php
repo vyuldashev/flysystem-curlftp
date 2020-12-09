@@ -12,7 +12,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $filename
      */
-    public function testWrite($filename)
+    public function testWrite($filename): void
     {
         $contents = $this->faker()->text;
 
@@ -33,7 +33,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $filename
      */
-    public function testUpdate($filename)
+    public function testUpdate($filename): void
     {
         $contents = $this->faker()->text;
 
@@ -59,7 +59,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $filename
      */
-    public function testUpdateStream($filename)
+    public function testUpdateStream($filename): void
     {
         $contents = $this->faker()->text;
 
@@ -87,7 +87,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $filename
      */
-    public function testRename($filename)
+    public function testRename($filename): void
     {
         $this->adapter->write($filename, 'foo', new Config);
 
@@ -105,7 +105,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $filename
      */
-    public function testCopy($filename)
+    public function testCopy($filename): void
     {
         $this->adapter->write($filename, 'foo', new Config);
 
@@ -124,7 +124,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $filename
      */
-    public function testDelete($filename)
+    public function testDelete($filename): void
     {
         $this->adapter->write($filename, 'foo', new Config);
 
@@ -134,7 +134,7 @@ class CurlFtpAdapterTest extends TestCase
         $this->assertFalse($this->adapter->has($filename));
     }
 
-    public function testCreateAndDeleteDir()
+    public function testCreateAndDeleteDir(): void
     {
         $result = $this->adapter->createDir('foo', new Config);
 
@@ -150,7 +150,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $filename
      */
-    public function testGetSetVisibility($filename)
+    public function testGetSetVisibility($filename): void
     {
         $this->adapter->write($filename, 'foo', new Config);
 
@@ -174,7 +174,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $name
      */
-    public function testRead($name)
+    public function testRead($name): void
     {
         $contents = $this->faker()->text;
         $this->createResourceFile($name, $contents);
@@ -188,7 +188,7 @@ class CurlFtpAdapterTest extends TestCase
         ], $response);
     }
 
-    public function testGetMetadata()
+    public function testGetMetadata(): void
     {
         $this->assertSame(['type' => 'dir', 'path' => ''], $this->adapter->getMetadata(''));
     }
@@ -198,7 +198,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $name
      */
-    public function testHas($name)
+    public function testHas($name): void
     {
         $contents = $this->faker()->text;
         $this->createResourceFile($name, $contents);
@@ -211,7 +211,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $path
      */
-    public function testHasInSubFolder($path)
+    public function testHasInSubFolder($path): void
     {
         $contents = $this->faker()->text;
         $this->createResourceFile($path, $contents);
@@ -219,7 +219,7 @@ class CurlFtpAdapterTest extends TestCase
         $this->assertTrue((bool) $this->adapter->has($path));
     }
 
-    public function testGetMimeType()
+    public function testGetMimeType(): void
     {
         $this->adapter->write('foo.json', 'bar', new Config);
 
@@ -227,7 +227,7 @@ class CurlFtpAdapterTest extends TestCase
         $this->assertFalse($this->adapter->getMimetype('bar.json'));
     }
 
-    public function testGetTimestamp()
+    public function testGetTimestamp(): void
     {
         $this->assertFalse($this->adapter->getTimestamp('foo'));
     }
@@ -237,7 +237,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $path
      */
-    public function testListContents($path)
+    public function testListContents($path): void
     {
         $contents = $this->faker()->text;
         $this->createResourceFile($path, $contents);
@@ -250,7 +250,7 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $path
      */
-    public function testListContentsEmptyPath($path)
+    public function testListContentsEmptyPath($path): void
     {
         $this->assertCount(0, $this->adapter->listContents(dirname($path)));
     }

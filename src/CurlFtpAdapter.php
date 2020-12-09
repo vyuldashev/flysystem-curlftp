@@ -63,7 +63,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param bool $ssl
      */
-    public function setSsl($ssl)
+    public function setSsl($ssl): void
     {
         $this->ssl = (bool) $ssl;
     }
@@ -71,7 +71,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param int $sslVerifyPeer
      */
-    public function setSslVerifyPeer($sslVerifyPeer)
+    public function setSslVerifyPeer($sslVerifyPeer): void
     {
         $this->sslVerifyPeer = $sslVerifyPeer;
     }
@@ -79,7 +79,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param int $sslVerifyHost
      */
-    public function setSslVerifyHost($sslVerifyHost)
+    public function setSslVerifyHost($sslVerifyHost): void
     {
         $this->sslVerifyHost = $sslVerifyHost;
     }
@@ -87,7 +87,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param bool $utf8
      */
-    public function setUtf8($utf8)
+    public function setUtf8($utf8): void
     {
         $this->utf8 = (bool) $utf8;
     }
@@ -103,7 +103,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param string $proxyHost
      */
-    public function setProxyHost($proxyHost)
+    public function setProxyHost($proxyHost): void
     {
         $this->proxyHost = $proxyHost;
     }
@@ -119,7 +119,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param int $proxyPort
      */
-    public function setProxyPort($proxyPort)
+    public function setProxyPort($proxyPort): void
     {
         $this->proxyPort = $proxyPort;
     }
@@ -135,7 +135,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param string $proxyUsername
      */
-    public function setProxyUsername($proxyUsername)
+    public function setProxyUsername($proxyUsername): void
     {
         $this->proxyUsername = $proxyUsername;
     }
@@ -151,7 +151,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param string $proxyPassword
      */
-    public function setProxyPassword($proxyPassword)
+    public function setProxyPassword($proxyPassword): void
     {
         $this->proxyPassword = $proxyPassword;
     }
@@ -159,7 +159,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Establish a connection.
      */
-    public function connect()
+    public function connect(): void
     {
         $this->connection = new Curl();
         $this->connection->setOptions([
@@ -196,7 +196,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Close the connection.
      */
-    public function disconnect()
+    public function disconnect(): void
     {
         if ($this->connection !== null) {
             $this->connection = null;
@@ -211,7 +211,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function isConnected()
     {
-        return $this->connection !== null && !$this->hasConnectionReachedTimeout();
+        return $this->connection !== null && ! $this->hasConnectionReachedTimeout();
     }
 
     /**
@@ -318,13 +318,13 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $response = $this->rawCommand($connection, 'RNFR '.$path);
-        list($code) = explode(' ', end($response), 2);
+        [$code] = explode(' ', end($response), 2);
         if ((int) $code !== 350) {
             return false;
         }
 
         $response = $this->rawCommand($connection, 'RNTO '.$newpath);
-        list($code) = explode(' ', end($response), 2);
+        [$code] = explode(' ', end($response), 2);
 
         return (int) $code === 250;
     }
@@ -360,7 +360,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $response = $this->rawCommand($connection, 'DELE '.$path);
-        list($code) = explode(' ', end($response), 2);
+        [$code] = explode(' ', end($response), 2);
 
         return (int) $code === 250;
     }
@@ -377,7 +377,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $response = $this->rawCommand($connection, 'RMD '.$dirname);
-        list($code) = explode(' ', end($response), 2);
+        [$code] = explode(' ', end($response), 2);
 
         return (int) $code === 250;
     }
@@ -395,7 +395,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $response = $this->rawCommand($connection, 'MKD '.$dirname);
-        list($code) = explode(' ', end($response), 2);
+        [$code] = explode(' ', end($response), 2);
         if ((int) $code !== 257) {
             return false;
         }
@@ -423,7 +423,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         $request = sprintf('SITE CHMOD %o %s', $mode, $path);
         $response = $this->rawCommand($connection, $request);
-        list($code) = explode(' ', end($response), 2);
+        [$code] = explode(' ', end($response), 2);
         if ((int) $code !== 200) {
             return false;
         }
@@ -440,7 +440,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function read($path)
     {
-        if (!$object = $this->readStream($path)) {
+        if (! $object = $this->readStream($path)) {
             return false;
         }
 
@@ -469,7 +469,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             CURLOPT_FILE => $stream,
         ]);
 
-        if (!$result) {
+        if (! $result) {
             fclose($stream);
 
             return false;
@@ -514,7 +514,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     public function getMimetype($path)
     {
-        if (!$metadata = $this->getMetadata($path)) {
+        if (! $metadata = $this->getMetadata($path)) {
             return false;
         }
 
@@ -533,7 +533,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     public function getTimestamp($path)
     {
         $response = $this->rawCommand($this->getConnection(), 'MDTM '.$path);
-        list($code, $time) = explode(' ', end($response), 2);
+        [$code, $time] = explode(' ', end($response), 2);
         if ($code !== '213') {
             return false;
         }
@@ -544,7 +544,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             $datetime = DateTime::createFromFormat('YmdHis', $time);
         }
 
-        if (!$datetime) {
+        if (! $datetime) {
             return false;
         }
 
@@ -677,7 +677,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     protected function rawCommand($connection, $command)
     {
         $response = '';
-        $callback = function ($ch, $string) use (&$response) {
+        $callback = static function ($ch, $string) use (&$response) {
             $response .= $string;
 
             return strlen($string);
@@ -705,7 +705,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Check the connection is established.
      */
-    protected function pingConnection()
+    protected function pingConnection(): void
     {
         // We can't use the getConnection, because it will lead to an infinite cycle
         if ($this->connection->exec() === false) {
@@ -716,14 +716,14 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Set the connection to UTF-8 mode.
      */
-    protected function setUtf8Mode()
+    protected function setUtf8Mode(): void
     {
-        if (!$this->utf8) {
+        if (! $this->utf8) {
             return;
         }
 
         $response = $this->rawCommand($this->connection, 'OPTS UTF8 ON');
-        list($code, $message) = explode(' ', end($response), 2);
+        [$code, $message] = explode(' ', end($response), 2);
         if ($code !== '200') {
             throw new RuntimeException(
                 'Could not set UTF-8 mode for connection: '.$this->getHost().'::'.$this->getPort()
@@ -734,7 +734,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Set the connection root.
      */
-    protected function setConnectionRoot()
+    protected function setConnectionRoot(): void
     {
         $root = $this->getRoot();
         if (empty($root)) {
@@ -743,7 +743,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         // We can't use the getConnection, because it will lead to an infinite cycle
         $response = $this->rawCommand($this->connection, 'CWD '.$root);
-        list($code) = explode(' ', end($response), 2);
+        [$code] = explode(' ', end($response), 2);
         if ((int) $code !== 250) {
             throw new RuntimeException('Root is invalid or does not exist: '.$this->getRoot());
         }

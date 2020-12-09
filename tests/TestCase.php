@@ -3,17 +3,17 @@
 namespace VladimirYuldashev\Flysystem\Tests;
 
 use Faker\Factory;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase as BaseTestCase;
 use VladimirYuldashev\Flysystem\CurlFtpAdapter;
 
-abstract class TestCase extends PHPUnit_Framework_TestCase
+abstract class TestCase extends BaseTestCase
 {
     protected $root = '';
 
     /** @var CurlFtpAdapter */
     protected $adapter;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->root = getenv('FTP_ADAPTER_ROOT');
         $this->createResourceDir('/');
@@ -30,7 +30,7 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
         ]);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->adapter->disconnect();
         unset($this->adapter);
@@ -56,20 +56,20 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
         ]));
     }
 
-    protected function createResourceDir($path)
+    protected function createResourceDir($path): void
     {
         if (empty($path)) {
             return;
         }
         $absolutePath = $this->getResourceAbsolutePath($path);
-        if (!is_dir($absolutePath)) {
+        if (! is_dir($absolutePath)) {
             $umask = umask(0);
             mkdir($absolutePath, 0777, true);
             umask($umask);
         }
     }
 
-    protected function createResourceFile($path, $filedata = '')
+    protected function createResourceFile($path, $filedata = ''): void
     {
         $this->createResourceDir(dirname($path));
         $absolutePath = $this->getResourceAbsolutePath($path);
@@ -86,7 +86,7 @@ abstract class TestCase extends PHPUnit_Framework_TestCase
         return Factory::create();
     }
 
-    protected function clearResources()
+    protected function clearResources(): void
     {
         exec('rm -rf '.escapeshellarg($this->getResourcesPath()).'*');
         exec('rm -rf '.escapeshellarg($this->getResourcesPath()).'.* 2>/dev/null');

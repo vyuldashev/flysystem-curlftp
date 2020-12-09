@@ -35,7 +35,7 @@ class Curl
      *
      * @param array $options Array of the Curl options, where key is a CURLOPT_* constant
      */
-    public function setOptions($options)
+    public function setOptions(array $options): void
     {
         foreach ($options as $key => $value) {
             $this->setOption($key, $value);
@@ -48,7 +48,7 @@ class Curl
      * @param int $key One of the CURLOPT_* constant
      * @param mixed $value The value of the CURL option
      */
-    public function setOption($key, $value)
+    public function setOption($key, $value): void
     {
         $this->options[$key] = $value;
     }
@@ -61,7 +61,7 @@ class Curl
      */
     public function getOption($key)
     {
-        if (!$this->hasOption($key)) {
+        if (! $this->hasOption($key)) {
             return null;
         }
 
@@ -74,7 +74,7 @@ class Curl
      * @param  int $key One of the CURLOPT_* constant
      * @return bool
      */
-    public function hasOption($key)
+    public function hasOption($key): bool
     {
         return array_key_exists($this->options, $key);
     }
@@ -84,7 +84,7 @@ class Curl
      *
      * @param  int $key One of the CURLOPT_* constant
      */
-    public function removeOption($key)
+    public function removeOption($key): void
     {
         if ($this->hasOption($key)) {
             unset($this->options[$key]);
