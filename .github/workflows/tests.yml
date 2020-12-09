@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      max-parallel: 2
       fail-fast: true
       matrix:
         php: [7.2, 7.3, 7.4, 8.0]
