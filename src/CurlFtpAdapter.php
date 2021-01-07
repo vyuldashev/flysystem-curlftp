@@ -593,9 +593,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $output = [];
 
         foreach ($listing as $item) {
-            if ($item['type'] === 'file') {
-                $output[] = $item;
-            } elseif ($item['type'] === 'dir') {
+            $output[] = $item;
+            if ($item['type'] === 'dir') {
                 $output = array_merge($output, $this->listDirectoryContentsRecursive($item['path']));
             }
         }
