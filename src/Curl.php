@@ -76,7 +76,7 @@ class Curl
      */
     public function hasOption($key): bool
     {
-        return array_key_exists($this->options, $key);
+        return array_key_exists($key, $this->options);
     }
 
     /**
