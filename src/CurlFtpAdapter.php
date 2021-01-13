@@ -28,6 +28,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'proxyPort',
         'proxyUsername',
         'proxyPassword',
+        'enableTimestampsOnUnixListings',
     ];
 
     /** @var Curl */
