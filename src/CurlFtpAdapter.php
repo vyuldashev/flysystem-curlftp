@@ -32,7 +32,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'proxyUsername',
         'proxyPassword',
         'verbose',
-        'enableTimestampsOnUnixListings'
+        'enableTimestampsOnUnixListings',
     ];
 
     /** @var Curl */
@@ -220,7 +220,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             $this->connection->setOption(CURLOPT_USE_SSL, CURLFTPSSL_ALL);
         }
 
-        if (!$this->passive) {
+        if (! $this->passive) {
             $this->connection->setOption(CURLOPT_FTPPORT, '-');
         }
 
