@@ -77,7 +77,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param bool $ftps
      */
-    public function setFtps($ftps)
+    public function setFtps($ftps): void
     {
         $this->ftps = (bool) $ftps;
     }
@@ -117,7 +117,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param bool $passive
      */
-    public function setPassive($passive)
+    public function setPassive($passive): void
     {
         $this->passive = (bool) $passive;
     }
@@ -125,7 +125,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param bool $skipPasvIp
      */
-    public function setSkipPasvIp($skipPasvIp)
+    public function setSkipPasvIp($skipPasvIp): void
     {
         $this->skipPasvIp = (bool) $skipPasvIp;
     }
@@ -197,7 +197,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * @param bool $verbose
      */
-    public function setVerbose($verbose)
+    public function setVerbose($verbose): void
     {
         $this->verbose = (bool) $verbose;
     }
