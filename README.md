@@ -46,7 +46,8 @@ $adapter = new CurlFtpAdapter([
   'proxyUsername' => 'proxyuser',
   'proxyPassword' => 'proxypassword',
   
-  'verbose' => false // set verbose mode on/off 
+  'verbose' => false, // set verbose mode on/off 
+  'legacyTls' => false, // enable if you want to use TLS 1.2
 ]);
 
 $filesystem = new Filesystem($adapter);

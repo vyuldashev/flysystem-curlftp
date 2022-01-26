@@ -33,6 +33,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'proxyPassword',
         'verbose',
         'enableTimestampsOnUnixListings',
+        'legacyTls',
     ];
 
     /** @var Curl */
@@ -73,6 +74,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
     /** @var bool */
     protected $verbose = false;
+
+    /** @var bool */
+    protected $legacyTls = false;
 
     /**
      * @param bool $ftps
@@ -203,6 +207,14 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
+     * @param bool $legacyTls
+     */
+    public function setLegacyTls($legacyTls): void
+    {
+        $this->legacyTls = (bool) $legacyTls;
+    }
+
+    /**
      * Establish a connection.
      */
     public function connect(): void
@@ -243,6 +255,10 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         if ($this->verbose) {
             $this->connection->setOption(CURLOPT_VERBOSE, $this->verbose);
+        }
+
+        if ($this->legacyTls) {
+            $this->connection->setOption(CURLOPT_SSLVERSION, 6);
         }
 
         $this->pingConnection();
