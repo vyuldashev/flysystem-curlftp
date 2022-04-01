@@ -33,7 +33,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'proxyPassword',
         'verbose',
         'enableTimestampsOnUnixListings',
+        'useListCommandArguments',
     ];
+
+    /** @var bool */
+    protected $useListCommandArguments = true;
 
     /** @var Curl */
     protected $connection;
@@ -73,6 +77,14 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
     /** @var bool */
     protected $verbose = false;
+
+    /**
+     * @param bool $ftps
+     */
+    public function setUseListCommandArguments($use): void
+    {
+        $this->useListCommandArguments = (bool) $use;
+    }
 
     /**
      * @param bool $ftps
@@ -550,7 +562,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return ['type' => 'dir', 'path' => ''];
         }
 
-        $request = rtrim('LIST -A '.$this->normalizePath($path));
+        $arguments = $this->useListCommandArguments ? '-A ' : '';
+        $request = rtrim('LIST '.$arguments.$this->normalizePath($path));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -619,7 +632,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return $this->listDirectoryContentsRecursive($directory);
         }
 
-        $request = rtrim('LIST -aln '.$this->normalizePath($directory));
+        $arguments = $this->useListCommandArguments ? '-aln ' : '';
+        $request = rtrim('LIST '.$arguments.$this->normalizePath($directory));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -641,7 +655,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function listDirectoryContentsRecursive($directory)
     {
-        $request = rtrim('LIST -aln '.$this->normalizePath($directory));
+        $arguments = $this->useListCommandArguments ? '-aln ' : '';
+        $request = rtrim('LIST '.$arguments.$this->normalizePath($directory));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
