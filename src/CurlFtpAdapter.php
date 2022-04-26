@@ -333,7 +333,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_URL => $this->getBaseUri().'/'.$path,
+            CURLOPT_URL => $this->getBaseUri().$this->getRoot().'/'.$path,
             CURLOPT_UPLOAD => 1,
             CURLOPT_INFILE => $resource,
         ]);
@@ -534,7 +534,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_URL => $this->getBaseUri().'/'.$path,
+            CURLOPT_URL => $this->getBaseUri().$this->getRoot().'/'.$path,
             CURLOPT_FILE => $stream,
         ]);
 
