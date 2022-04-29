@@ -572,6 +572,12 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
         $listing = $this->normalizeListing(explode(PHP_EOL, $result), '');
 
+        $pathIsDir = pathinfo($path, PATHINFO_EXTENSION) === '';
+
+        if ($pathIsDir && count($listing) === 0) {
+            return ['type' => 'dir', 'path' => $path];
+        }
+
         return current($listing);
     }
 
