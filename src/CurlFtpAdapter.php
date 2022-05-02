@@ -33,7 +33,11 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'proxyPassword',
         'verbose',
         'enableTimestampsOnUnixListings',
+        'useListCommandArguments',
     ];
+
+    /** @var bool */
+    protected $useListCommandArguments = true;
 
     /** @var Curl */
     protected $connection;
@@ -73,6 +77,28 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
     /** @var bool */
     protected $verbose = false;
+
+    /**
+     * Constructor.
+     *
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        parent::__construct($config);
+
+        if (isset($config['root'])) {
+            $this->setPathPrefix($config['root']);
+        }
+    }
+
+    /**
+     * @param bool $ftps
+     */
+    public function setUseListCommandArguments($use): void
+    {
+        $this->useListCommandArguments = (bool) $use;
+    }
 
     /**
      * @param bool $ftps
@@ -321,7 +347,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_URL => $this->getBaseUri().'/'.$path,
+            CURLOPT_URL => $this->getBaseUri().$this->getRoot().'/'.$path,
             CURLOPT_UPLOAD => 1,
             CURLOPT_INFILE => $resource,
         ]);
@@ -522,7 +548,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         $connection = $this->getConnection();
 
         $result = $connection->exec([
-            CURLOPT_URL => $this->getBaseUri().'/'.$path,
+            CURLOPT_URL => $this->getBaseUri().$this->getRoot().'/'.$path,
             CURLOPT_FILE => $stream,
         ]);
 
@@ -550,7 +576,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return ['type' => 'dir', 'path' => ''];
         }
 
-        $request = rtrim('LIST -A '.$this->normalizePath($path));
+        $arguments = $this->useListCommandArguments ? '-A ' : '';
+        $request = rtrim('LIST '.$arguments.$this->normalizePath($path));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -559,7 +586,72 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
         $listing = $this->normalizeListing(explode(PHP_EOL, $result), '');
 
+        $pathIsDir = pathinfo($path, PATHINFO_EXTENSION) === '';
+
+        if ($pathIsDir && count($listing) === 0) {
+            return ['type' => 'dir', 'path' => $path];
+        }
+
         return current($listing);
+    }
+
+    /**
+     * Normalize a Unix file entry.
+     *
+     * Given $item contains:
+     *    '-rw-r--r--   1 ftp      ftp           409 Aug 19 09:01 file1.txt'
+     *
+     * This function will return:
+     * [
+     *   'type' => 'file',
+     *   'path' => 'file1.txt',
+     *   'visibility' => 'public',
+     *   'size' => 409,
+     *   'timestamp' => 1566205260
+     * ]
+     *
+     * @param string $item
+     * @param string $base
+     *
+     * @return array normalized file array
+     */
+    protected function normalizeUnixObject($item, $base)
+    {
+        $item = preg_replace('#\s+#', ' ', trim($item), 7);
+
+        if (count(explode(' ', $item, 9)) !== 9) {
+            throw new RuntimeException("Metadata can't be parsed from item '$item' , not enough parts.");
+        }
+
+        list($permissions, /* $number */, /* $owner */, /* $group */, $size, $month, $day, $timeOrYear, $name) = explode(' ', $item, 9);
+        $type = $this->detectType($permissions);
+        $path = $base === '' ? $name : $base.$this->separator.$name;
+
+        if ($type === 'dir') {
+            $result = compact('type', 'path');
+            if ($this->enableTimestampsOnUnixListings) {
+                $timestamp = $this->normalizeUnixTimestamp($month, $day, $timeOrYear);
+                $result += compact('timestamp');
+            }
+
+            return $result;
+        }
+
+        if (stristr($path, $this->getPathPrefix())) {
+            $path = $this->removePathPrefix($path);
+        }
+
+        $permissions = $this->normalizePermissions($permissions);
+        $visibility = $permissions & 0044 ? AdapterInterface::VISIBILITY_PUBLIC : AdapterInterface::VISIBILITY_PRIVATE;
+        $size = (int) $size;
+
+        $result = compact('type', 'path', 'visibility', 'size');
+        if ($this->enableTimestampsOnUnixListings) {
+            $timestamp = $this->normalizeUnixTimestamp($month, $day, $timeOrYear);
+            $result += compact('timestamp');
+        }
+
+        return $result;
     }
 
     /**
@@ -619,7 +711,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return $this->listDirectoryContentsRecursive($directory);
         }
 
-        $request = rtrim('LIST -aln '.$this->normalizePath($directory));
+        $arguments = $this->useListCommandArguments ? '-aln ' : '';
+        $request = rtrim('LIST '.$arguments.$this->normalizePath($directory));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -641,7 +734,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      */
     protected function listDirectoryContentsRecursive($directory)
     {
-        $request = rtrim('LIST -aln '.$this->normalizePath($directory));
+        $arguments = $this->useListCommandArguments ? '-aln ' : '';
+        $request = rtrim('LIST '.$arguments.$this->normalizePath($directory));
 
         $connection = $this->getConnection();
         $result = $connection->exec([CURLOPT_CUSTOMREQUEST => $request]);
@@ -805,7 +899,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         $response = $this->rawCommand($this->connection, 'OPTS UTF8 ON');
         [$code, $message] = explode(' ', end($response), 2);
-        if ($code !== '200') {
+        if (! in_array($code, ['200', '202'])) {
             throw new RuntimeException(
                 'Could not set UTF-8 mode for connection: '.$this->getHost().'::'.$this->getPort()
             );
