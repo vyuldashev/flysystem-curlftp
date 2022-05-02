@@ -79,6 +79,20 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     protected $verbose = false;
 
     /**
+     * Constructor.
+     *
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        parent::__construct($config);
+
+        if (isset($config['root'])) {
+            $this->setPathPrefix($config['root']);
+        }
+    }
+
+    /**
      * @param bool $ftps
      */
     public function setUseListCommandArguments($use): void
@@ -579,6 +593,65 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         return current($listing);
+    }
+
+    /**
+     * Normalize a Unix file entry.
+     *
+     * Given $item contains:
+     *    '-rw-r--r--   1 ftp      ftp           409 Aug 19 09:01 file1.txt'
+     *
+     * This function will return:
+     * [
+     *   'type' => 'file',
+     *   'path' => 'file1.txt',
+     *   'visibility' => 'public',
+     *   'size' => 409,
+     *   'timestamp' => 1566205260
+     * ]
+     *
+     * @param string $item
+     * @param string $base
+     *
+     * @return array normalized file array
+     */
+    protected function normalizeUnixObject($item, $base)
+    {
+        $item = preg_replace('#\s+#', ' ', trim($item), 7);
+
+        if (count(explode(' ', $item, 9)) !== 9) {
+            throw new RuntimeException("Metadata can't be parsed from item '$item' , not enough parts.");
+        }
+
+        list($permissions, /* $number */, /* $owner */, /* $group */, $size, $month, $day, $timeOrYear, $name) = explode(' ', $item, 9);
+        $type = $this->detectType($permissions);
+        $path = $base === '' ? $name : $base.$this->separator.$name;
+
+        if ($type === 'dir') {
+            $result = compact('type', 'path');
+            if ($this->enableTimestampsOnUnixListings) {
+                $timestamp = $this->normalizeUnixTimestamp($month, $day, $timeOrYear);
+                $result += compact('timestamp');
+            }
+
+            return $result;
+        }
+
+        if (stristr($path, $this->getPathPrefix())) {
+            $path = $this->removePathPrefix($path);
+        }
+
+        $permissions = $this->normalizePermissions($permissions);
+        $visibility = $permissions & 0044 ? AdapterInterface::VISIBILITY_PUBLIC : AdapterInterface::VISIBILITY_PRIVATE;
+        $size = (int) $size;
+
+        $result = compact('type', 'path', 'visibility', 'size');
+        if ($this->enableTimestampsOnUnixListings) {
+            $timestamp = $this->normalizeUnixTimestamp($month, $day, $timeOrYear);
+            $result += compact('timestamp');
+        }
+
+        return $result;
     }
 
     /**
