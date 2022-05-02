@@ -826,7 +826,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         $response = $this->rawCommand($this->connection, 'OPTS UTF8 ON');
         [$code, $message] = explode(' ', end($response), 2);
-        if ($code !== '200') {
+        if (!in_array($code, ['200', '202'])) {
             throw new RuntimeException(
                 'Could not set UTF-8 mode for connection: '.$this->getHost().'::'.$this->getPort()
             );
