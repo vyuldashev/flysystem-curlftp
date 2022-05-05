@@ -354,14 +354,22 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $connection = $this->getConnection();
 
+        $pathDdir = pathinfo($path, PATHINFO_DIRNAME);
+        $pathHasFolders = $pathDdir !== '.';
+        $requestPath = $pathHasFolders ? $this->applyPathPrefix($path) : $path;
+
         $result = $connection->exec([
-            CURLOPT_URL => $this->getBaseUri().$this->getRoot().'/'.$path,
+            CURLOPT_URL => $this->getBaseUri().$this->separator.$requestPath,
             CURLOPT_UPLOAD => 1,
             CURLOPT_INFILE => $resource,
         ]);
 
         if ($result === false) {
             return false;
+        }
+
+        if ($pathHasFolders) {
+            $this->setConnectionRoot();
         }
 
         $type = 'file';
@@ -555,8 +563,12 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         $connection = $this->getConnection();
 
+        $pathDir = pathinfo($path, PATHINFO_DIRNAME);
+        $pathHasFolders = $pathDir !== '.';
+        $requestPath = $pathHasFolders ? $this->applyPathPrefix($path) : $path;
+
         $result = $connection->exec([
-            CURLOPT_URL => $this->getBaseUri().$this->getRoot().'/'.$path,
+            CURLOPT_URL => $this->getBaseUri().$this->separator.$requestPath,
             CURLOPT_FILE => $stream,
         ]);
 
@@ -567,6 +579,10 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         rewind($stream);
+
+        if($pathHasFolders) {
+            $this->setConnectionRoot();
+        }
 
         return ['type' => 'file', 'path' => $path, 'stream' => $stream];
     }
