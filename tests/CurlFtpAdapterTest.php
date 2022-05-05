@@ -252,6 +252,110 @@ class CurlFtpAdapterTest extends TestCase
         $this->assertCount(0, $this->adapter->listContents(dirname($path)));
     }
 
+    /**
+     * Tests that a FTP server is still in root directory as its working directory
+     * after reading a file, especially if this file is in a subfolder.
+     *
+     * @dataProvider filesAndSubfolderFilesProvider
+     *
+     * @param $path
+     */
+    public function testReadAndHasInSequence($path): void
+    {
+        $contents = $this->faker()->text;
+        $this->createResourceFile($path, $contents);
+
+        $response = $this->adapter->read($path);
+
+        $this->assertSame([
+            'type' => 'file',
+            'path' => $path,
+            'contents' => $contents,
+        ], $response);
+
+        $this->assertTrue((bool) $this->adapter->has($path));
+    }
+
+    /**
+     * Tests that a FTP server is still in root directory as its working directory
+     * after writing a file, especially if this file is in a subfolder.
+     *
+     * @dataProvider filesAndSubfolderFilesProvider
+     *
+     * @param $path
+     */
+    public function testWriteAndHasInSequence($path): void
+    {
+        $contents = $this->faker()->text;
+
+        $this->createResourceDirIfPathHasDir($path);
+
+        $result = $this->adapter->write($path, $contents, new Config);
+
+        $this->assertSame([
+            'type' => 'file',
+            'path' => $path,
+            'contents' => $contents,
+            'mimetype' => Util::guessMimeType($this->getResourceAbsolutePath($path), $contents),
+        ], $result);
+
+        $this->assertEquals($contents, $this->getResourceContent($path));
+
+        $this->assertTrue((bool) $this->adapter->has($path));
+    }
+
+    /**
+     * Tests that a FTP server is still in root directory as its working directory
+     * after reading a file from a different folder than the file which is checked via has.
+     */
+    public function testReadAndHasInDifferentFoldersInSequence(): void
+    {
+        $read_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
+        $read_path_contents = $this->faker()->text;
+        $this->createResourceFile($read_path, $read_path_contents);
+
+        $has_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
+        $has_path_contents = $this->faker()->text;
+        $this->createResourceFile($has_path, $has_path_contents);
+
+        $response = $this->adapter->read($read_path);
+
+        $this->assertSame([
+            'type' => 'file',
+            'path' => $read_path,
+            'contents' => $read_path_contents,
+        ], $response);
+
+        $this->assertTrue((bool) $this->adapter->has($has_path));
+    }
+
+    /**
+     * Tests that a FTP server is still in root directory as its working directory
+     * after reading a file from a different folder than the file which is checked via has.
+     */
+    public function testWriteAndHasInDifferentFoldersInSequence(): void
+    {
+        $write_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
+        $write_path_contents = $this->faker()->text;
+
+        $has_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
+        $has_path_contents = $this->faker()->text;
+        $this->createResourceFile($has_path, $has_path_contents);
+
+        $this->createResourceDirIfPathHasDir($write_path);
+
+        $response = $this->adapter->write($write_path, $write_path_contents, new Config);
+
+        $this->assertSame([
+            'type' => 'file',
+            'path' => $write_path,
+            'contents' => $write_path_contents,
+            'mimetype' => Util::guessMimeType($this->getResourceAbsolutePath($write_path), $write_path_contents),
+        ], $response);
+
+        $this->assertTrue((bool) $this->adapter->has($has_path));
+    }
+
     public function filesAndSubfolderFilesProvider()
     {
         return [

@@ -32,6 +32,7 @@ abstract class TestCase extends BaseTestCase
             'passive' => true, // default use PASV mode
             'skipPasvIp' => false, // ignore the IP address in the PASV response
             'verbose' => false, // set verbose mode on/off
+            'useListCommandArguments' => false,
         ]);
     }
 
