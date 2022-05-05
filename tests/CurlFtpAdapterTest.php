@@ -8,13 +8,15 @@ use League\Flysystem\Util;
 class CurlFtpAdapterTest extends TestCase
 {
     /**
-     * @dataProvider filesProvider
+     * @dataProvider filesAndSubfolderFilesProvider
      *
      * @param $filename
      */
     public function testWrite($filename): void
     {
         $contents = $this->faker()->text;
+
+        $this->createResourceDirIfPathHasDir($filename);
 
         $result = $this->adapter->write($filename, $contents, new Config);
 
@@ -29,13 +31,15 @@ class CurlFtpAdapterTest extends TestCase
     }
 
     /**
-     * @dataProvider filesProvider
+     * @dataProvider filesAndSubfolderFilesProvider
      *
      * @param $filename
      */
     public function testUpdate($filename): void
     {
         $contents = $this->faker()->text;
+
+        $this->createResourceDirIfPathHasDir($filename);
 
         $this->adapter->write($filename, $contents, new Config);
         $this->assertEquals($contents, $this->getResourceContent($filename));
@@ -55,7 +59,7 @@ class CurlFtpAdapterTest extends TestCase
     }
 
     /**
-     * @dataProvider filesProvider
+     * @dataProvider filesAndSubfolderFilesProvider
      *
      * @param $filename
      */
@@ -66,6 +70,8 @@ class CurlFtpAdapterTest extends TestCase
         $stream = fopen('php://memory', 'rb+');
         fwrite($stream, $contents);
         rewind($stream);
+
+        $this->createResourceDirIfPathHasDir($filename);
 
         $this->adapter->writeStream($filename, $stream, new Config);
         $this->assertEquals($contents, $this->getResourceContent($filename));
@@ -120,12 +126,14 @@ class CurlFtpAdapterTest extends TestCase
     }
 
     /**
-     * @dataProvider filesProvider
+     * @dataProvider filesAndSubfolderFilesProvider
      *
      * @param $filename
      */
     public function testDelete($filename): void
     {
+        $this->createResourceDirIfPathHasDir($filename);
+
         $this->adapter->write($filename, 'foo', new Config);
 
         $result = $this->adapter->delete($filename);
@@ -146,12 +154,14 @@ class CurlFtpAdapterTest extends TestCase
     }
 
     /**
-     * @dataProvider filesProvider
+     * @dataProvider filesAndSubfolderFilesProvider
      *
      * @param $filename
      */
     public function testGetSetVisibility($filename): void
     {
+        $this->createResourceDirIfPathHasDir($filename);
+
         $this->adapter->write($filename, 'foo', new Config);
 
         $result = $this->adapter->setVisibility($filename, 'public');
@@ -170,7 +180,7 @@ class CurlFtpAdapterTest extends TestCase
     }
 
     /**
-     * @dataProvider filesProvider
+     * @dataProvider filesAndSubfolderFilesProvider
      *
      * @param $name
      */
@@ -194,7 +204,7 @@ class CurlFtpAdapterTest extends TestCase
     }
 
     /**
-     * @dataProvider filesProvider
+     * @dataProvider filesAndSubfolderFilesProvider
      *
      * @param $name
      */
@@ -204,19 +214,6 @@ class CurlFtpAdapterTest extends TestCase
         $this->createResourceFile($name, $contents);
 
         $this->assertTrue((bool) $this->adapter->has($name));
-    }
-
-    /**
-     * @dataProvider withSubFolderProvider
-     *
-     * @param $path
-     */
-    public function testHasInSubFolder($path): void
-    {
-        $contents = $this->faker()->text;
-        $this->createResourceFile($path, $contents);
-
-        $this->assertTrue((bool) $this->adapter->has($path));
     }
 
     public function testGetMimeType(): void
@@ -253,6 +250,32 @@ class CurlFtpAdapterTest extends TestCase
     public function testListContentsEmptyPath($path): void
     {
         $this->assertCount(0, $this->adapter->listContents(dirname($path)));
+    }
+
+    public function filesAndSubfolderFilesProvider()
+    {
+        return [
+            ['test.txt'],
+            ['..test.txt'],
+            ['test 1.txt'],
+            ['test  2.txt'],
+            ['тест.txt'],
+            [$this->randomFileName()],
+            [$this->randomFileName()],
+            [$this->randomFileName()],
+            [$this->randomFileName()],
+            [$this->randomFileName()],
+            ['test/test.txt'],
+            ['тёст/тёст.txt'],
+            ['test 1/test.txt'],
+            ['test/test 1.txt'],
+            ['test  1/test  2.txt'],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+            [$this->faker()->word.'/'.$this->randomFileName()],
+        ];
     }
 
     public function filesProvider()

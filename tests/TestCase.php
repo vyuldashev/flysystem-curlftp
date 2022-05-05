@@ -61,6 +61,14 @@ abstract class TestCase extends BaseTestCase
         ]));
     }
 
+    protected function createResourceDirIfPathHasDir($path): void
+    {
+        $pathDir = pathinfo($path, PATHINFO_DIRNAME);
+        if ($pathDir !== '.') {
+            $this->createResourceDir($pathDir);
+        }
+    }
+
     protected function createResourceDir($path): void
     {
         if (empty($path)) {
