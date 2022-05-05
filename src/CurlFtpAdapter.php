@@ -34,6 +34,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'verbose',
         'enableTimestampsOnUnixListings',
         'useListCommandArguments',
+        'isPureFtpd',
     ];
 
     /** @var bool */
@@ -46,7 +47,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     protected $connectionTimestamp = 0;
 
     /** @var bool */
-    protected $isPureFtpd;
+    protected $isPureFtpd = null;
 
     /** @var bool */
     protected $ftps = true;
@@ -138,6 +139,14 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     public function setUtf8($utf8): void
     {
         $this->utf8 = (bool) $utf8;
+    }
+
+    /**
+     * @param bool $isPureFtpd
+     */
+    public function setIsPureFtpd($isPureFtpd): void
+    {
+        $this->isPureFtpd = (bool) $isPureFtpd;
     }
 
     /**
@@ -285,7 +294,6 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         if ($this->connection !== null) {
             $this->connection = null;
         }
-        $this->isPureFtpd = null;
     }
 
     /**
