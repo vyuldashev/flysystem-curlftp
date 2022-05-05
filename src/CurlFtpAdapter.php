@@ -82,7 +82,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Constructor.
      *
-     * @param array $config
+     * @param  array  $config
      */
     public function __construct(array $config)
     {
@@ -94,7 +94,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param bool $ftps
+     * @param  bool  $ftps
      */
     public function setUseListCommandArguments($use): void
     {
@@ -102,7 +102,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param bool $ftps
+     * @param  bool  $ftps
      */
     public function setFtps($ftps): void
     {
@@ -110,7 +110,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param bool $ssl
+     * @param  bool  $ssl
      */
     public function setSsl($ssl): void
     {
@@ -118,7 +118,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param int $sslVerifyPeer
+     * @param  int  $sslVerifyPeer
      */
     public function setSslVerifyPeer($sslVerifyPeer): void
     {
@@ -126,7 +126,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param int $sslVerifyHost
+     * @param  int  $sslVerifyHost
      */
     public function setSslVerifyHost($sslVerifyHost): void
     {
@@ -134,7 +134,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param bool $utf8
+     * @param  bool  $utf8
      */
     public function setUtf8($utf8): void
     {
@@ -150,7 +150,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param bool $passive
+     * @param  bool  $passive
      */
     public function setPassive($passive): void
     {
@@ -158,7 +158,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param bool $skipPasvIp
+     * @param  bool  $skipPasvIp
      */
     public function setSkipPasvIp($skipPasvIp): void
     {
@@ -174,7 +174,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param string $proxyHost
+     * @param  string  $proxyHost
      */
     public function setProxyHost($proxyHost): void
     {
@@ -190,7 +190,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param int $proxyPort
+     * @param  int  $proxyPort
      */
     public function setProxyPort($proxyPort): void
     {
@@ -206,7 +206,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param string $proxyUsername
+     * @param  string  $proxyUsername
      */
     public function setProxyUsername($proxyUsername): void
     {
@@ -222,7 +222,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param string $proxyPassword
+     * @param  string  $proxyPassword
      */
     public function setProxyPassword($proxyPassword): void
     {
@@ -230,7 +230,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param bool $verbose
+     * @param  bool  $verbose
      */
     public function setVerbose($verbose): void
     {
@@ -317,10 +317,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Write a new file.
      *
-     * @param string $path
-     * @param string $contents
-     * @param Config $config Config object
-     *
+     * @param  string  $path
+     * @param  string  $contents
+     * @param  Config  $config  Config object
      * @return array|false false on failure file meta data on success
      */
     public function write($path, $contents, Config $config)
@@ -344,10 +343,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Write a new file using a stream.
      *
-     * @param string   $path
-     * @param resource $resource
-     * @param Config   $config Config object
-     *
+     * @param  string  $path
+     * @param  resource  $resource
+     * @param  Config  $config  Config object
      * @return array|false false on failure file meta data on success
      */
     public function writeStream($path, $resource, Config $config)
@@ -380,10 +378,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Update a file.
      *
-     * @param string $path
-     * @param string $contents
-     * @param Config $config Config object
-     *
+     * @param  string  $path
+     * @param  string  $contents
+     * @param  Config  $config  Config object
      * @return array|false false on failure file meta data on success
      */
     public function update($path, $contents, Config $config)
@@ -394,10 +391,9 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Update a file using a stream.
      *
-     * @param string   $path
-     * @param resource $resource
-     * @param Config   $config Config object
-     *
+     * @param  string  $path
+     * @param  resource  $resource
+     * @param  Config  $config  Config object
      * @return array|false false on failure file meta data on success
      */
     public function updateStream($path, $resource, Config $config)
@@ -408,9 +404,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Rename a file.
      *
-     * @param string $path
-     * @param string $newpath
-     *
+     * @param  string  $path
+     * @param  string  $newpath
      * @return bool
      */
     public function rename($path, $newpath)
@@ -423,7 +418,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         ];
 
         $response = $this->rawPost($connection, $moveCommands);
-        list($code) = explode(' ', end($response), 2);
+        [$code] = explode(' ', end($response), 2);
 
         return (int) $code === 250;
     }
@@ -431,9 +426,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Copy a file.
      *
-     * @param string $path
-     * @param string $newpath
-     *
+     * @param  string  $path
+     * @param  string  $newpath
      * @return bool
      */
     public function copy($path, $newpath)
@@ -450,8 +444,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Delete a file.
      *
-     * @param string $path
-     *
+     * @param  string  $path
      * @return bool
      */
     public function delete($path)
@@ -467,8 +460,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Delete a directory.
      *
-     * @param string $dirname
-     *
+     * @param  string  $dirname
      * @return bool
      */
     public function deleteDir($dirname)
@@ -484,9 +476,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Create a directory.
      *
-     * @param string $dirname directory name
-     * @param Config $config
-     *
+     * @param  string  $dirname  directory name
+     * @param  Config  $config
      * @return array|false
      */
     public function createDir($dirname, Config $config)
@@ -505,9 +496,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Set the visibility for a file.
      *
-     * @param string $path
-     * @param string $visibility
-     *
+     * @param  string  $path
+     * @param  string  $visibility
      * @return array|false file meta data
      */
     public function setVisibility($path, $visibility)
@@ -533,8 +523,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Read a file.
      *
-     * @param string $path
-     *
+     * @param  string  $path
      * @return array|false
      */
     public function read($path)
@@ -553,8 +542,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Read a file as a stream.
      *
-     * @param string $path
-     *
+     * @param  string  $path
      * @return array|false
      */
     public function readStream($path)
@@ -590,8 +578,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Get all the meta data of a file or directory.
      *
-     * @param string $path
-     *
+     * @param  string  $path
      * @return array|false
      */
     public function getMetadata($path)
@@ -634,9 +621,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      *   'timestamp' => 1566205260
      * ]
      *
-     * @param string $item
-     * @param string $base
-     *
+     * @param  string  $item
+     * @param  string  $base
      * @return array normalized file array
      */
     protected function normalizeUnixObject($item, $base)
@@ -647,7 +633,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             throw new RuntimeException("Metadata can't be parsed from item '$item' , not enough parts.");
         }
 
-        list($permissions, /* $number */, /* $owner */, /* $group */, $size, $month, $day, $timeOrYear, $name) = explode(' ', $item, 9);
+        [$permissions, /* $number */, /* $owner */, /* $group */, $size, $month, $day, $timeOrYear, $name] = explode(' ', $item, 9);
         $type = $this->detectType($permissions);
         $path = $base === '' ? $name : $base.$this->separator.$name;
 
@@ -682,8 +668,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Get the mimetype of a file.
      *
-     * @param string $path
-     *
+     * @param  string  $path
      * @return array|false
      */
     public function getMimetype($path)
@@ -700,8 +685,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Get the timestamp of a file.
      *
-     * @param string $path
-     *
+     * @param  string  $path
      * @return array|false
      */
     public function getTimestamp($path)
@@ -728,7 +712,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * {@inheritdoc}
      *
-     * @param string $directory
+     * @param  string  $directory
      */
     protected function listDirectoryContents($directory, $recursive = false)
     {
@@ -755,7 +739,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * {@inheritdoc}
      *
-     * @param string $directory
+     * @param  string  $directory
      */
     protected function listDirectoryContentsRecursive($directory)
     {
@@ -781,8 +765,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Normalize a permissions string.
      *
-     * @param string $permissions
-     *
+     * @param  string  $permissions
      * @return int
      */
     protected function normalizePermissions($permissions)
@@ -806,8 +789,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Normalize path depending on server.
      *
-     * @param string $path
-     *
+     * @param  string  $path
      * @return string
      */
     protected function normalizePath($path)
@@ -844,9 +826,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     /**
      * Sends an arbitrary command to an FTP server.
      *
-     * @param  Curl   $connection The CURL instance
-     * @param  string $command    The command to execute
-     *
+     * @param  Curl  $connection  The CURL instance
+     * @param  string  $command  The command to execute
      * @return array Returns the server's response as an array of strings
      */
     protected function rawCommand($connection, $command)
@@ -869,9 +850,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
      * Sends an arbitrary command to an FTP server using POSTQUOTE option. This makes sure all commands are run
      * in succession and increases chance of success for complex operations like "move/rename file".
      *
-     * @param  Curl  $connection The CURL instance
-     * @param  array $commandsArray    The commands to execute
-     *
+     * @param  Curl  $connection  The CURL instance
+     * @param  array  $commandsArray  The commands to execute
      * @return array Returns the server's response as an array of strings
      */
     protected function rawPost($connection, array $commandsArray)

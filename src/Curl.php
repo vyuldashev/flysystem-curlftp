@@ -15,7 +15,7 @@ class Curl
     protected $options;
 
     /**
-     * @param array $options Array of the Curl options, where key is a CURLOPT_* constant
+     * @param  array  $options  Array of the Curl options, where key is a CURLOPT_* constant
      */
     public function __construct($options = [])
     {
@@ -33,7 +33,7 @@ class Curl
     /**
      * Set the Curl options.
      *
-     * @param array $options Array of the Curl options, where key is a CURLOPT_* constant
+     * @param  array  $options  Array of the Curl options, where key is a CURLOPT_* constant
      */
     public function setOptions(array $options): void
     {
@@ -45,8 +45,8 @@ class Curl
     /**
      * Set the Curl option.
      *
-     * @param int $key One of the CURLOPT_* constant
-     * @param mixed $value The value of the CURL option
+     * @param  int  $key  One of the CURLOPT_* constant
+     * @param  mixed  $value  The value of the CURL option
      */
     public function setOption($key, $value): void
     {
@@ -56,7 +56,7 @@ class Curl
     /**
      * Returns the value of the option.
      *
-     * @param  int $key One of the CURLOPT_* constant
+     * @param  int  $key  One of the CURLOPT_* constant
      * @return mixed|null The value of the option set, or NULL, if it does not exist
      */
     public function getOption($key)
@@ -71,7 +71,7 @@ class Curl
     /**
      * Checking if the option is set.
      *
-     * @param  int $key One of the CURLOPT_* constant
+     * @param  int  $key  One of the CURLOPT_* constant
      * @return bool
      */
     public function hasOption($key): bool
@@ -82,7 +82,7 @@ class Curl
     /**
      * Remove the option.
      *
-     * @param  int $key One of the CURLOPT_* constant
+     * @param  int  $key  One of the CURLOPT_* constant
      */
     public function removeOption($key): void
     {
@@ -94,7 +94,7 @@ class Curl
     /**
      * Calls curl_exec and returns its result.
      *
-     * @param  array $options Array where key is a CURLOPT_* constant
+     * @param  array  $options  Array where key is a CURLOPT_* constant
      * @return mixed Results of curl_exec
      */
     public function exec($options = [])
