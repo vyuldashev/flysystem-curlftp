@@ -580,7 +580,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         rewind($stream);
 
-        if($pathHasFolders) {
+        if ($pathHasFolders) {
             $this->setConnectionRoot();
         }
 
