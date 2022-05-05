@@ -645,7 +645,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return $result;
         }
 
-        if (stristr($path, $this->getPathPrefix())) {
+        $pathPrefix = $this->getPathPrefix();
+        if (substr($path, 0, strlen($pathPrefix)) === $pathPrefix) {
             $path = $this->removePathPrefix($path);
         }
 
