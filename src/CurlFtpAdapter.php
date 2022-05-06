@@ -34,6 +34,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         'verbose',
         'enableTimestampsOnUnixListings',
         'useListCommandArguments',
+        'isPureFtpd',
     ];
 
     /** @var bool */
@@ -46,7 +47,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     protected $connectionTimestamp = 0;
 
     /** @var bool */
-    protected $isPureFtpd;
+    protected $isPureFtpd = null;
 
     /** @var bool */
     protected $ftps = true;
@@ -138,6 +139,14 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     public function setUtf8($utf8): void
     {
         $this->utf8 = (bool) $utf8;
+    }
+
+    /**
+     * @param bool $isPureFtpd
+     */
+    public function setIsPureFtpd($isPureFtpd): void
+    {
+        $this->isPureFtpd = (bool) $isPureFtpd;
     }
 
     /**
@@ -285,7 +294,6 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         if ($this->connection !== null) {
             $this->connection = null;
         }
-        $this->isPureFtpd = null;
     }
 
     /**
@@ -344,14 +352,22 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     {
         $connection = $this->getConnection();
 
+        $pathDir = pathinfo($path, PATHINFO_DIRNAME);
+        $pathHasFolders = $pathDir !== '.';
+        $requestPath = $pathHasFolders ? $this->applyPathPrefix($path) : $path;
+
         $result = $connection->exec([
-            CURLOPT_URL => $this->getBaseUri().$this->getRoot().'/'.$path,
+            CURLOPT_URL => $this->getBaseUri().$this->separator.rawurlencode($requestPath),
             CURLOPT_UPLOAD => 1,
             CURLOPT_INFILE => $resource,
         ]);
 
         if ($result === false) {
             return false;
+        }
+
+        if ($pathHasFolders) {
+            $this->setConnectionRoot();
         }
 
         $type = 'file';
@@ -535,8 +551,12 @@ class CurlFtpAdapter extends AbstractFtpAdapter
 
         $connection = $this->getConnection();
 
+        $pathDir = pathinfo($path, PATHINFO_DIRNAME);
+        $pathHasFolders = $pathDir !== '.';
+        $requestPath = $pathHasFolders ? $this->applyPathPrefix($path) : $path;
+
         $result = $connection->exec([
-            CURLOPT_URL => $this->getBaseUri().$this->getRoot().'/'.$path,
+            CURLOPT_URL => $this->getBaseUri().$this->separator.rawurlencode($requestPath),
             CURLOPT_FILE => $stream,
         ]);
 
@@ -547,6 +567,10 @@ class CurlFtpAdapter extends AbstractFtpAdapter
         }
 
         rewind($stream);
+
+        if ($pathHasFolders) {
+            $this->setConnectionRoot();
+        }
 
         return ['type' => 'file', 'path' => $path, 'stream' => $stream];
     }
@@ -623,7 +647,8 @@ class CurlFtpAdapter extends AbstractFtpAdapter
             return $result;
         }
 
-        if (stristr($path, $this->getPathPrefix())) {
+        $pathPrefix = $this->getPathPrefix();
+        if (substr($path, 0, strlen($pathPrefix)) === $pathPrefix) {
             $path = $this->removePathPrefix($path);
         }
 

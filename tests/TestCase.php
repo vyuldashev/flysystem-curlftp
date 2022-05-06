@@ -32,6 +32,7 @@ abstract class TestCase extends BaseTestCase
             'passive' => true, // default use PASV mode
             'skipPasvIp' => false, // ignore the IP address in the PASV response
             'verbose' => false, // set verbose mode on/off
+            'useListCommandArguments' => false,
         ]);
     }
 
@@ -59,6 +60,14 @@ abstract class TestCase extends BaseTestCase
             trim($this->root, '/'),
             ltrim($path, '/'),
         ]));
+    }
+
+    protected function createResourceDirIfPathHasDir($path): void
+    {
+        $pathDir = pathinfo($path, PATHINFO_DIRNAME);
+        if ($pathDir !== '.') {
+            $this->createResourceDir($pathDir);
+        }
     }
 
     protected function createResourceDir($path): void
