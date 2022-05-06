@@ -142,7 +142,7 @@ class CurlFtpAdapter extends AbstractFtpAdapter
     }
 
     /**
-     * @param bool $isPureFtpd
+     * @param  bool  $isPureFtpd
      */
     public function setIsPureFtpd($isPureFtpd): void
     {
