@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace VladimirYuldashev\Flysystem;
 
 class Curl
@@ -9,18 +11,15 @@ class Curl
      */
     protected $curl;
 
-    /**
-     * @var array
-     */
-    protected $options;
+    protected string $lastError;
 
     /**
      * @param  array  $options  Array of the Curl options, where key is a CURLOPT_* constant
      */
-    public function __construct($options = [])
-    {
+    public function __construct(
+        protected array $options = []
+    ) {
         $this->curl = curl_init();
-        $this->options = $options;
     }
 
     public function __destruct()
@@ -57,11 +56,12 @@ class Curl
      * Returns the value of the option.
      *
      * @param  int  $key  One of the CURLOPT_* constant
+     *
      * @return mixed|null The value of the option set, or NULL, if it does not exist
      */
     public function getOption($key)
     {
-        if (! $this->hasOption($key)) {
+        if ( ! $this->hasOption($key)) {
             return null;
         }
 
@@ -72,6 +72,7 @@ class Curl
      * Checking if the option is set.
      *
      * @param  int  $key  One of the CURLOPT_* constant
+     *
      * @return bool
      */
     public function hasOption($key): bool
@@ -95,6 +96,7 @@ class Curl
      * Calls curl_exec and returns its result.
      *
      * @param  array  $options  Array where key is a CURLOPT_* constant
+     *
      * @return mixed Results of curl_exec
      */
     public function exec($options = [])
@@ -103,8 +105,17 @@ class Curl
 
         curl_setopt_array($this->curl, $options);
         $result = curl_exec($this->curl);
+        $this->lastError = curl_error($this->curl);
         curl_reset($this->curl);
 
         return $result;
+    }
+
+    /**
+     * Returns curl_error from last call to exec.
+     */
+    public function lastError(): string
+    {
+        return $this->lastError;
     }
 }

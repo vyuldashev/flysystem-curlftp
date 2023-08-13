@@ -1,33 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit backupGlobals="false"
-         backupStaticAttributes="false"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
-         verbose="true"
->
-    <testsuites>
-        <testsuite name="All tests">
-            <directory suffix=".php">./tests/</directory>
-        </testsuite>
-    </testsuites>
-    <filter>
-        <whitelist>
-            <directory suffix=".php">./src/</directory>
-        </whitelist>
-    </filter>
-    <logging>
-        <log type="coverage-text" target="php://stdout" showUncoveredFiles="true"/>
-        <log type="coverage-html" target="tests/coverage" showUncoveredFiles="true"/>
-        <log type="coverage-clover" target="tests/coverage.xml" showUncoveredFiles="true"/>
-    </logging>
-    <php>
-        <env name="FTP_ADAPTER_PROTOCOL" value="ftp" />
-        <env name="FTP_ADAPTER_HOST" value="127.0.0.1" />
-        <env name="FTP_ADAPTER_USER" value="ftpuser" />
-        <env name="FTP_ADAPTER_PASSWORD" value="password" />
-    </php>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    backupGlobals="false" 
+    colors="true" 
+    processIsolation="false" 
+    stopOnFailure="false" 
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd" 
+    cacheDirectory=".phpunit.cache" 
+    backupStaticProperties="false"
+  >
+  <testsuites>
+    <testsuite name="All tests">
+      <directory suffix="Test.php">./tests/</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <env name="FTP_ADAPTER_PROTOCOL" value="ftp"/>
+    <env name="FTP_ADAPTER_HOST" value="127.0.0.1"/>
+    <env name="FTP_ADAPTER_USER" value="ftpuser"/>
+    <env name="FTP_ADAPTER_PASSWORD" value="password"/>
+  </php>
+  <coverage>
+    <report>
+      <clover outputFile="tests/coverage.xml"/>
+      <html outputDirectory="tests/coverage"/>
+      <text outputFile="php://stdout" showUncoveredFiles="true"/>
+    </report>
+  </coverage>
+  <logging/>
+  <source>
+    <include>
+      <directory suffix=".php">./src/</directory>
+    </include>
+  </source>
 </phpunit>

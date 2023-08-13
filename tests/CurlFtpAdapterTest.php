@@ -1,9 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace VladimirYuldashev\Flysystem\Tests;
 
 use League\Flysystem\Config;
-use League\Flysystem\Util;
+use League\Flysystem\UnableToCopyFile;
+use League\Flysystem\UnableToRetrieveMetadata;
+use League\Flysystem\UnableToSetVisibility;
+use League\Flysystem\Visibility;
 
 class CurlFtpAdapterTest extends TestCase
 {
@@ -18,14 +23,9 @@ class CurlFtpAdapterTest extends TestCase
 
         $this->createResourceDirIfPathHasDir($filename);
 
-        $result = $this->adapter->write($filename, $contents, new Config);
+        $this->adapter->write($filename, $contents, self::publicConfig());
 
-        $this->assertSame([
-            'type' => 'file',
-            'path' => $filename,
-            'contents' => $contents,
-            'mimetype' => Util::guessMimeType($this->getResourceAbsolutePath($filename), $contents),
-        ], $result);
+        $this->assertTrue($this->adapter->fileExists($filename));
 
         $this->assertEquals($contents, $this->getResourceContent($filename));
     }
@@ -41,18 +41,11 @@ class CurlFtpAdapterTest extends TestCase
 
         $this->createResourceDirIfPathHasDir($filename);
 
-        $this->adapter->write($filename, $contents, new Config);
+        $this->adapter->write($filename, $contents, self::publicConfig());
         $this->assertEquals($contents, $this->getResourceContent($filename));
 
         $newContents = $this->faker()->text;
-        $result = $this->adapter->update($filename, $newContents, new Config);
-
-        $this->assertSame([
-            'type' => 'file',
-            'path' => $filename,
-            'contents' => $newContents,
-            'mimetype' => Util::guessMimeType($this->getResourceAbsolutePath($filename), $contents),
-        ], $result);
+        $this->adapter->write($filename, $newContents, self::publicConfig());
 
         $this->assertNotEquals($contents, $this->getResourceContent($filename));
         $this->assertEquals($newContents, $this->getResourceContent($filename));
@@ -73,7 +66,7 @@ class CurlFtpAdapterTest extends TestCase
 
         $this->createResourceDirIfPathHasDir($filename);
 
-        $this->adapter->writeStream($filename, $stream, new Config);
+        $this->adapter->writeStream($filename, $stream, self::publicConfig());
         $this->assertEquals($contents, $this->getResourceContent($filename));
 
         $newContents = $this->faker()->text;
@@ -82,7 +75,7 @@ class CurlFtpAdapterTest extends TestCase
         fwrite($stream, $newContents);
         rewind($stream);
 
-        $this->adapter->updateStream($filename, $stream, new Config);
+        $this->adapter->writeStream($filename, $stream, self::publicConfig());
 
         $this->assertNotEquals($contents, $this->getResourceContent($filename));
         $this->assertEquals($newContents, $this->getResourceContent($filename));
@@ -99,11 +92,10 @@ class CurlFtpAdapterTest extends TestCase
 
         $newFilename = $this->randomFileName();
 
-        $result = $this->adapter->rename($filename, $newFilename);
+        $this->adapter->move($filename, $newFilename, new Config);
 
-        $this->assertTrue($result);
-        $this->assertFalse($this->adapter->has($filename));
-        $this->assertNotFalse($this->adapter->has($newFilename));
+        $this->assertFalse($this->adapter->fileExists($filename));
+        $this->assertNotFalse($this->adapter->fileExists($newFilename));
     }
 
     /**
@@ -115,14 +107,17 @@ class CurlFtpAdapterTest extends TestCase
     {
         $this->adapter->write($filename, 'foo', new Config);
 
-        $result = $this->adapter->copy($filename, 'bar');
+         $this->adapter->copy($filename, 'bar', new Config);
 
-        $this->assertTrue($result);
-        $this->assertNotFalse($this->adapter->has($filename));
-        $this->assertNotFalse($this->adapter->has('bar'));
-        $this->assertEquals($this->adapter->read($filename)['contents'], $this->adapter->read('bar')['contents']);
+        $this->assertNotFalse($this->adapter->fileExists($filename));
+        $this->assertNotFalse($this->adapter->fileExists('bar'));
+        $this->assertEquals($this->adapter->read($filename), $this->adapter->read('bar'));
+    }
 
-        $this->assertFalse($this->adapter->copy('foo-bar', 'bar-foo'));
+    public function testCopyFails(): void
+    {
+        $this->expectException(UnableToCopyFile::class);
+        $this->adapter->copy('foo-bar', 'bar-foo', new Config);
     }
 
     /**
@@ -136,21 +131,22 @@ class CurlFtpAdapterTest extends TestCase
 
         $this->adapter->write($filename, 'foo', new Config);
 
-        $result = $this->adapter->delete($filename);
+        $this->adapter->delete($filename);
 
-        $this->assertTrue($result);
-        $this->assertFalse($this->adapter->has($filename));
+        $this->assertFalse($this->adapter->fileExists($filename));
     }
 
     public function testCreateAndDeleteDir(): void
     {
-        $result = $this->adapter->createDir('foo', new Config);
+        $this->assertFalse($this->adapter->directoryExists('foo'));
 
-        $this->assertSame(['type' => 'dir', 'path' => 'foo'], $result);
+        $this->adapter->createDirectory('foo', self::publicConfig());
 
-        $result = $this->adapter->deleteDir('foo');
+        $this->assertTrue($this->adapter->directoryExists('foo'));
 
-        $this->assertTrue($result);
+        $this->adapter->deleteDirectory('foo');
+
+        $this->assertFalse($this->adapter->directoryExists('foo'));
     }
 
     /**
@@ -164,19 +160,19 @@ class CurlFtpAdapterTest extends TestCase
 
         $this->adapter->write($filename, 'foo', new Config);
 
-        $result = $this->adapter->setVisibility($filename, 'public');
+        $this->adapter->setVisibility($filename, 'public');
 
-        $this->assertNotFalse($result);
-        $this->assertSame('public', $result['visibility']);
-        $this->assertSame('public', $this->adapter->getVisibility($filename)['visibility']);
+        $this->assertSame('public', $this->adapter->visibility($filename)->visibility());
 
-        $result = $this->adapter->setVisibility($filename, 'private');
+        $this->adapter->setVisibility($filename, 'private');
 
-        $this->assertNotFalse($result);
-        $this->assertSame('private', $result['visibility']);
-        $this->assertSame('private', $this->adapter->getVisibility($filename)['visibility']);
+        $this->assertSame('private', $this->adapter->visibility($filename)->visibility());
+    }
 
-        $this->assertFalse($this->adapter->setVisibility('bar', 'public'));
+    public function testGetSetVisibilityFails(): void
+    {
+        $this->expectException(UnableToSetVisibility::class);
+        $this->adapter->setVisibility('bar', 'public');
     }
 
     /**
@@ -191,16 +187,7 @@ class CurlFtpAdapterTest extends TestCase
 
         $response = $this->adapter->read($name);
 
-        $this->assertSame([
-            'type' => 'file',
-            'path' => $name,
-            'contents' => $contents,
-        ], $response);
-    }
-
-    public function testGetMetadata(): void
-    {
-        $this->assertSame(['type' => 'dir', 'path' => ''], $this->adapter->getMetadata(''));
+        $this->assertSame($contents, $response);
     }
 
     /**
@@ -208,25 +195,38 @@ class CurlFtpAdapterTest extends TestCase
      *
      * @param $name
      */
-    public function testHas($name): void
+    public function testFileExists($name): void
     {
         $contents = $this->faker()->text;
         $this->createResourceFile($name, $contents);
 
-        $this->assertTrue((bool) $this->adapter->has($name));
+        $this->assertTrue((bool) $this->adapter->fileExists($name));
     }
 
-    public function testGetMimeType(): void
+    public function testMimeType(): void
     {
         $this->adapter->write('foo.json', 'bar', new Config);
 
-        $this->assertSame('application/json', $this->adapter->getMimetype('foo.json')['mimetype']);
-        $this->assertFalse($this->adapter->getMimetype('bar.json'));
+        $this->assertSame('application/json', $this->adapter->mimeType('foo.json')->mimeType());
     }
 
-    public function testGetTimestamp(): void
+    public function testMimeTypeFaileNotExist(): void
     {
-        $this->assertFalse($this->adapter->getTimestamp('foo'));
+        $this->expectException(UnableToRetrieveMetadata::class);
+        $this->adapter->mimeType('bar.json');
+    }
+
+    public function testLastModifiedFailed(): void
+    {
+        $this->expectException(UnableToRetrieveMetadata::class);
+        $this->adapter->lastModified('foo');
+    }
+
+    public function testLastModified(): void
+    {
+        $this->adapter->write('foo.json.lastModified', 'bar', new Config);
+        $lastModified = $this->adapter->lastModified('foo.json.lastModified')->lastModified();
+        $this->assertGreaterThan(strtotime("yesterday 0:00"), $lastModified);
     }
 
     /**
@@ -239,7 +239,7 @@ class CurlFtpAdapterTest extends TestCase
         $contents = $this->faker()->text;
         $this->createResourceFile($path, $contents);
 
-        $this->assertCount(1, $this->adapter->listContents(dirname($path)));
+        $this->assertCount(1, iterator_to_array($this->adapter->listContents(dirname($path), false), false));
     }
 
     /**
@@ -249,7 +249,7 @@ class CurlFtpAdapterTest extends TestCase
      */
     public function testListContentsEmptyPath($path): void
     {
-        $this->assertCount(0, $this->adapter->listContents(dirname($path)));
+        $this->assertCount(0, iterator_to_array($this->adapter->listContents(dirname($path), false), false));
     }
 
     /**
@@ -267,13 +267,9 @@ class CurlFtpAdapterTest extends TestCase
 
         $response = $this->adapter->read($path);
 
-        $this->assertSame([
-            'type' => 'file',
-            'path' => $path,
-            'contents' => $contents,
-        ], $response);
+        $this->assertSame($contents, $response);
 
-        $this->assertTrue((bool) $this->adapter->has($path));
+        $this->assertTrue((bool) $this->adapter->fileExists($path));
     }
 
     /**
@@ -290,18 +286,11 @@ class CurlFtpAdapterTest extends TestCase
 
         $this->createResourceDirIfPathHasDir($path);
 
-        $result = $this->adapter->write($path, $contents, new Config);
-
-        $this->assertSame([
-            'type' => 'file',
-            'path' => $path,
-            'contents' => $contents,
-            'mimetype' => Util::guessMimeType($this->getResourceAbsolutePath($path), $contents),
-        ], $result);
+        $this->adapter->write($path, $contents, self::publicConfig());
 
         $this->assertEquals($contents, $this->getResourceContent($path));
 
-        $this->assertTrue((bool) $this->adapter->has($path));
+        $this->assertTrue((bool) $this->adapter->fileExists($path));
     }
 
     /**
@@ -310,23 +299,19 @@ class CurlFtpAdapterTest extends TestCase
      */
     public function testReadAndHasInDifferentFoldersInSequence(): void
     {
-        $read_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
+        $read_path = $this->faker()->unique()->word . '/' . $this->randomFileName();
         $read_path_contents = $this->faker()->text;
         $this->createResourceFile($read_path, $read_path_contents);
 
-        $has_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
+        $has_path = $this->faker()->unique()->word . '/' . $this->randomFileName();
         $has_path_contents = $this->faker()->text;
         $this->createResourceFile($has_path, $has_path_contents);
 
         $response = $this->adapter->read($read_path);
 
-        $this->assertSame([
-            'type' => 'file',
-            'path' => $read_path,
-            'contents' => $read_path_contents,
-        ], $response);
+        $this->assertSame($read_path_contents, $response);
 
-        $this->assertTrue((bool) $this->adapter->has($has_path));
+        $this->assertTrue((bool) $this->adapter->fileExists($has_path));
     }
 
     /**
@@ -335,28 +320,21 @@ class CurlFtpAdapterTest extends TestCase
      */
     public function testWriteAndHasInDifferentFoldersInSequence(): void
     {
-        $write_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
+        $write_path = $this->faker()->unique()->word . '/' . $this->randomFileName();
         $write_path_contents = $this->faker()->text;
 
-        $has_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
+        $has_path = $this->faker()->unique()->word . '/' . $this->randomFileName();
         $has_path_contents = $this->faker()->text;
         $this->createResourceFile($has_path, $has_path_contents);
 
         $this->createResourceDirIfPathHasDir($write_path);
 
-        $response = $this->adapter->write($write_path, $write_path_contents, new Config);
+        $this->adapter->write($write_path, $write_path_contents, new Config);
 
-        $this->assertSame([
-            'type' => 'file',
-            'path' => $write_path,
-            'contents' => $write_path_contents,
-            'mimetype' => Util::guessMimeType($this->getResourceAbsolutePath($write_path), $write_path_contents),
-        ], $response);
-
-        $this->assertTrue((bool) $this->adapter->has($has_path));
+        $this->assertTrue((bool) $this->adapter->fileExists($has_path));
     }
 
-    public function filesAndSubfolderFilesProvider()
+    public static function filesAndSubfolderFilesProvider()
     {
         return [
             ['test.txt'],
@@ -364,25 +342,25 @@ class CurlFtpAdapterTest extends TestCase
             ['test 1.txt'],
             ['test  2.txt'],
             ['тест.txt'],
-            [$this->randomFileName()],
-            [$this->randomFileName()],
-            [$this->randomFileName()],
-            [$this->randomFileName()],
-            [$this->randomFileName()],
+            [self::randomFileName()],
+            [self::randomFileName()],
+            [self::randomFileName()],
+            [self::randomFileName()],
+            [self::randomFileName()],
             ['test/test.txt'],
             ['тёст/тёст.txt'],
             ['test 1/test.txt'],
             ['test/test 1.txt'],
             ['test  1/test  2.txt'],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
+            [self::faker()->word . '/' . self::randomFileName()],
+            [self::faker()->word . '/' . self::randomFileName()],
+            [self::faker()->word . '/' . self::randomFileName()],
+            [self::faker()->word . '/' . self::randomFileName()],
+            [self::faker()->word . '/' . self::randomFileName()],
         ];
     }
 
-    public function filesProvider()
+    public static function filesProvider()
     {
         return [
             ['test.txt'],
@@ -390,15 +368,15 @@ class CurlFtpAdapterTest extends TestCase
             ['test 1.txt'],
             ['test  2.txt'],
             ['тест.txt'],
-            [$this->randomFileName()],
-            [$this->randomFileName()],
-            [$this->randomFileName()],
-            [$this->randomFileName()],
-            [$this->randomFileName()],
+            [self::randomFileName()],
+            [self::randomFileName()],
+            [self::randomFileName()],
+            [self::randomFileName()],
+            [self::randomFileName()],
         ];
     }
 
-    public function withSubFolderProvider()
+    public static function withSubFolderProvider()
     {
         return [
             ['test/test.txt'],
@@ -406,11 +384,11 @@ class CurlFtpAdapterTest extends TestCase
             ['test 1/test.txt'],
             ['test/test 1.txt'],
             ['test  1/test  2.txt'],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
-            [$this->faker()->word.'/'.$this->randomFileName()],
+            [self::faker()->word . '/' . self::randomFileName()],
+            [self::faker()->word . '/' . self::randomFileName()],
+            [self::faker()->word . '/' . self::randomFileName()],
+            [self::faker()->word . '/' . self::randomFileName()],
+            [self::faker()->word . '/' . self::randomFileName()],
         ];
     }
 }
