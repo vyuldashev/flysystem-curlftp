@@ -29,7 +29,7 @@
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "phpunit/phpunit": "^10.0",
-        "phpstan/phpstan": "^0.12.26",
+        "phpstan/phpstan": "^1.8",
         "friendsofphp/php-cs-fixer": "^3.5"
     },
     "autoload": {
@@ -47,10 +47,16 @@
             "@test:style",
             "@test:unit"
         ],
-        "test:style": "@php vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff --verbose",
+        "test:style": [ 
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
+            "@php vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff --verbose"
+        ],
+        "fix:style": [
+            "@putenv PHP_CS_FIXER_IGNORE_ENV=1",
+            "@php vendor/bin/php-cs-fixer fix --allow-risky=yes --diff --verbose"
+        ],
         "test:unit": "sh tests/run.sh",
         "test:slow_unit": "sh tests/run_slow.sh",
-        "fix:style": "@php vendor/bin/php-cs-fixer fix --allow-risky=yes --diff --verbose",
         "phpstan": "vendor/bin/phpstan analyse -l 6 src"
     },
     "minimum-stability": "dev",
