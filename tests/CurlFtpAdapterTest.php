@@ -8,7 +8,6 @@ use League\Flysystem\Config;
 use League\Flysystem\UnableToCopyFile;
 use League\Flysystem\UnableToRetrieveMetadata;
 use League\Flysystem\UnableToSetVisibility;
-use League\Flysystem\Visibility;
 
 class CurlFtpAdapterTest extends TestCase
 {
@@ -107,7 +106,7 @@ class CurlFtpAdapterTest extends TestCase
     {
         $this->adapter->write($filename, 'foo', new Config);
 
-         $this->adapter->copy($filename, 'bar', new Config);
+        $this->adapter->copy($filename, 'bar', new Config);
 
         $this->assertNotFalse($this->adapter->fileExists($filename));
         $this->assertNotFalse($this->adapter->fileExists('bar'));

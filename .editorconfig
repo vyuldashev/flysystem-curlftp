@@ -13,3 +13,6 @@ indent_size = 4
 [*.php]
 end_of_line = lf
 insert_final_newline = true
+
+[*.sh]
+indent_style = tab

@@ -49,6 +49,7 @@
         ],
         "test:style": "@php vendor/bin/php-cs-fixer fix --allow-risky=yes --dry-run --diff --verbose",
         "test:unit": "sh tests/run.sh",
+        "test:slow_unit": "sh tests/run_slow.sh",
         "fix:style": "@php vendor/bin/php-cs-fixer fix --allow-risky=yes --diff --verbose",
         "phpstan": "vendor/bin/phpstan analyse -l 6 src"
     },

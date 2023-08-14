@@ -1,5 +1,6 @@
 /tests/coverage
 /tests/coverage.xml
+/tests/resources
 /vendor/
 /coverage/
 /.phpunit.cache

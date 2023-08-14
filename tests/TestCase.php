@@ -34,10 +34,12 @@ abstract class TestCase extends BaseTestCase
                 'root' => $this->root,
                 'utf8' => true,
                 'ssl' => false,
-                'ftps' => false, // use ftps:// with implicit TLS or ftp:// with explicit TLS
+                'ftps' => (bool) (getenv('FTP_ADAPTER_FTPS') ?: false), // use ftps:// with implicit TLS or ftp:// with explicit TLS
                 'passive' => true, // default use PASV mode
-                'ignorePassiveAddress' => false, // ignore the IP address in the PASV response
+                'ignorePassiveAddress' => true, // ignore the IP address in the PASV response
                 'timestampsOnUnixListingsEnabled' => true,
+                'sslVerifyPeer' => 0, // using 0 is insecure, use it only if you know what you're doing
+                'sslVerifyHost' => 0, // using 0 is insecure, use it only if you know what you're doing
                 'verbose' => false, // set verbose mode on/off
             ])
         );
@@ -59,6 +61,7 @@ abstract class TestCase extends BaseTestCase
     {
         $absolutePath = $this->getResourceAbsolutePath($path);
         $this->assertIsReadable($absolutePath);
+
         return file_get_contents($absolutePath);
     }
 

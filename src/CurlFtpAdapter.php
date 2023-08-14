@@ -290,7 +290,7 @@ class CurlFtpAdapter implements FilesystemAdapter
             CURLOPT_INFILE => $contents,
         ]);
 
-        if ( $result === false) {
+        if ($result === false) {
             throw UnableToWriteFile::atLocation($path, $this->connection->lastError());
         }
 
@@ -400,10 +400,10 @@ class CurlFtpAdapter implements FilesystemAdapter
         $connection = $this->connection();
         $request = sprintf('SITE CHMOD %o %s', $mode, $location);
         $response = $this->rawCommand($connection, $request);
-        [$code] = explode(' ', end($response), 2);
+        [$code, $errorMessage] = explode(' ', end($response), 2);
         if ((int) $code !== 200) {
-            $message = $this->connection->lastError();
-            throw UnableToSetVisibility::atLocation($path, $message);
+            $errorMessage = 'unable to chmod the file by running SITE CHMOD: ' . $errorMessage;
+            throw UnableToSetVisibility::atLocation($path, $errorMessage);
         }
     }
 
@@ -415,7 +415,6 @@ class CurlFtpAdapter implements FilesystemAdapter
             $location = str_replace(' ', '\ ', $location);
             $location = $this->escapePath($location);
         }
-
 
         $connection = $this->connection();
         $object = $this->rawCommand($connection, 'STAT ' . $location);
@@ -772,16 +771,17 @@ class CurlFtpAdapter implements FilesystemAdapter
             [$code] = explode(' ', end($response), 2);
 
             if ((int) $code !== 257) {
-                $errorMessage = $this->connection->lastError() ?? 'unable to create the directory';
+                $errorMessage = 'unable to create the directory: ' . $this->connection->lastError();
                 throw UnableToCreateDirectory::atLocation($dirPath, $errorMessage);
             }
 
             if ($mode !== false) {
                 $request = sprintf('SITE CHMOD %o %s', $mode, $location);
                 $response = $this->rawCommand($connection, $request);
-                [$code] = explode(' ', end($response), 2);
+                [$code, $errorMessage] = explode(' ', end($response), 2);
                 if ((int) $code !== 200) {
-                    throw UnableToCreateDirectory::atLocation($dirPath, 'unable to chmod the directory');
+                    $errorMessage = 'unable to chmod the directory by running SITE CHMOD: ' . $errorMessage;
+                    throw UnableToCreateDirectory::atLocation($dirPath, $errorMessage);
                 }
             }
         }

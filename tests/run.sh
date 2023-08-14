@@ -31,8 +31,8 @@ XDEBUG_MODE=coverage FTP_ADAPTER_PORT=221 FTP_ADAPTER_ROOT=/chroot vendor/bin/ph
 rc=$?
 # exit if phpunit did not return 0
 if test $rc != 0; then
-    echo "Tests failed, with return code : ${rc}"
-    error_test $rc;
+	echo "Tests failed, with return code : ${rc}"
+	error_test $rc;
 fi
 
 # stopping containers
@@ -52,8 +52,8 @@ XDEBUG_MODE=coverage FTP_ADAPTER_PORT=222 FTP_ADAPTER_ROOT=/chroot vendor/bin/ph
 rc=$?
 # exit if phpunit did not return 0
 if test $rc != 0; then
-    echo "Tests failed, with return code : ${rc}"
-    error_test $rc;
+	echo "Tests failed, with return code : ${rc}"
+	error_test $rc;
 fi
 
 # stopping containers

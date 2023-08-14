@@ -18,6 +18,21 @@ services:
             - FTP_PASS=password
             - PASV_ADDRESS=127.0.0.1
 
+    vsftpd-implicit-ssl:
+        build: ./vsftpd-implicit-ssl
+        ports:
+            - "990:990"
+            - "4559-4564:4559-4564"
+        volumes:
+            - ./vsftpd-implicit-ssl/vsftpd.crt:/etc/ssl/certs/vsftpd.crt:ro
+            - ./vsftpd-implicit-ssl/vsftpd.key:/etc/ssl/private/vsftpd.key:ro
+            - ./../resources:/srv/ftpuser
+            # detailed logging - .:/var/log
+        environment:
+            - FTP_USER=ftpuser
+            - FTP_PASSWORD=password
+            - PASV_ADDRESS=127.0.0.1
+            - FTP_USERS_ROOT=1
 
     pure-ftpd:
         build: ./pure-ftpd
