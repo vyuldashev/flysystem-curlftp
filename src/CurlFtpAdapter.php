@@ -160,7 +160,7 @@ class CurlFtpAdapter implements FilesystemAdapter
         $response = $this->rawCommand($this->connection, 'CWD ' . $root);
         [$code] = explode(' ', end($response), 2);
         if ((int) $code !== 250) {
-            throw UnableToResolveConnectionRoot::itDoesNotExist($root, 'Root is invalid or does not exist');
+            throw new RuntimeException('Unable to resolve connection root. It does not seem to exist: ' . $root);
         }
     }
 
@@ -202,10 +202,8 @@ class CurlFtpAdapter implements FilesystemAdapter
 
         return explode(PHP_EOL, trim($response));
     }
-    /**
-     * @return resource
-     */
-    private function connection()
+
+    private function connection(): ?Curl
     {
         start:
         if ($this->connection === null) {
@@ -336,14 +334,10 @@ class CurlFtpAdapter implements FilesystemAdapter
 
     public function delete(string $path): void
     {
-        $connection = $this->connection();
-        $this->deleteFile($path, $connection);
+        $this->deleteFile($path);
     }
 
-    /**
-     * @param resource $connection
-     */
-    private function deleteFile(string $path, $connection): void
+    private function deleteFile(string $path): void
     {
         $location = $this->prefixer()->prefixPath($path);
         $connection = $this->connection();
@@ -369,7 +363,7 @@ class CurlFtpAdapter implements FilesystemAdapter
                 continue;
             }
             try {
-                $this->deleteFile($item->path(), $connection);
+                $this->deleteFile($item->path());
             } catch (Throwable $exception) {
                 throw UnableToDeleteDirectory::atLocation($path, 'unable to delete child', $exception);
             }
@@ -420,7 +414,7 @@ class CurlFtpAdapter implements FilesystemAdapter
         $object = $this->rawCommand($connection, 'STAT ' . $location);
 
         if (empty($object) || count($object) < 4 || substr($object[1], 0, 5) === "ftpd:") {
-            throw UnableToRetrieveMetadata::create($path, $type, $this->connection->lastError() ?? '');
+            throw UnableToRetrieveMetadata::create($path, $type, $this->connection->lastError());
         }
 
         $attributes = $this->normalizeObject($object[2], '');
@@ -461,7 +455,7 @@ class CurlFtpAdapter implements FilesystemAdapter
         $response = $this->rawCommand($connection, 'MDTM ' . $location);
         [$code, $time] = explode(' ', end($response), 2);
         if ($code !== '213') {
-            throw UnableToRetrieveMetadata::lastModified($path);
+            throw UnableToRetrieveMetadata::lastModified($path, $time);
         }
 
         if (strpos($time, '.')) {
@@ -471,7 +465,7 @@ class CurlFtpAdapter implements FilesystemAdapter
         }
 
         if ( ! $lastModified) {
-            throw UnableToRetrieveMetadata::lastModified($lastModified);
+            throw UnableToRetrieveMetadata::lastModified($path, "Can't parse lastModified string {$time} to timestamp");
         }
 
         return new FileAttributes($path, null, null, $lastModified->getTimestamp());
@@ -492,7 +486,7 @@ class CurlFtpAdapter implements FilesystemAdapter
         }
 
         if ($fileSize < 0) {
-            throw UnableToRetrieveMetadata::fileSize($path, '');
+            throw UnableToRetrieveMetadata::fileSize($path, 'Filesize is less then 0');
         }
 
         return new FileAttributes($path, (int) $fileSize);

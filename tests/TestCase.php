@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace VladimirYuldashev\Flysystem\Tests;
 
 use Faker\Factory;
+use Faker\Generator as FakerGenerator;
 use League\Flysystem\Config;
 use League\Flysystem\Visibility;
 use PHPUnit\Framework\TestCase as BaseTestCase;
@@ -13,10 +14,11 @@ use VladimirYuldashev\Flysystem\CurlFtpConnectionOptions;
 
 abstract class TestCase extends BaseTestCase
 {
-    protected $root = '';
+    protected string $root = '';
 
-    /** @var CurlFtpAdapter */
-    protected $adapter;
+    protected ?CurlFtpAdapter $adapter;
+
+    protected static ?FakerGenerator $faker = null;
 
     public function setUp(): void
     {
@@ -52,12 +54,12 @@ abstract class TestCase extends BaseTestCase
         $this->clearResources();
     }
 
-    protected function getResourcesPath()
+    protected function getResourcesPath(): string
     {
         return __DIR__ . '/resources/';
     }
 
-    protected function getResourceContent($path)
+    protected function getResourceContent(string $path): string
     {
         $absolutePath = $this->getResourceAbsolutePath($path);
         $this->assertIsReadable($absolutePath);
@@ -65,7 +67,7 @@ abstract class TestCase extends BaseTestCase
         return file_get_contents($absolutePath);
     }
 
-    protected function getResourceAbsolutePath($path)
+    protected function getResourceAbsolutePath(string $path): string
     {
         return implode('/', array_filter([
             rtrim($this->getResourcesPath(), '/'),
@@ -74,7 +76,7 @@ abstract class TestCase extends BaseTestCase
         ]));
     }
 
-    protected function createResourceDirIfPathHasDir($path): void
+    protected function createResourceDirIfPathHasDir(string $path): void
     {
         $pathDir = pathinfo($path, PATHINFO_DIRNAME);
         if ($pathDir !== '.') {
@@ -82,7 +84,7 @@ abstract class TestCase extends BaseTestCase
         }
     }
 
-    protected function createResourceDir($path): void
+    protected function createResourceDir(string $path): void
     {
         if (empty($path)) {
             return;
@@ -95,21 +97,25 @@ abstract class TestCase extends BaseTestCase
         }
     }
 
-    protected function createResourceFile($path, $filedata = ''): void
+    protected function createResourceFile(string $path, string $filedata = ''): void
     {
         $this->createResourceDir(dirname($path));
         $absolutePath = $this->getResourceAbsolutePath($path);
         file_put_contents($absolutePath, $filedata);
     }
 
-    protected static function randomFileName()
+    protected static function randomFileName(): string
     {
-        return self::faker()->name . '.' . self::faker()->fileExtension;
+        return self::faker()->name . '.' . self::faker()->fileExtension();
     }
 
-    protected static function faker()
+    protected static function faker(): FakerGenerator
     {
-        return Factory::create();
+        if ( ! self::$faker) {
+            self::$faker = Factory::create();
+        }
+
+        return self::$faker;
     }
 
     protected function clearResources(): void
@@ -119,7 +125,7 @@ abstract class TestCase extends BaseTestCase
         clearstatcache();
     }
 
-    protected static function publicConfig()
+    protected static function publicConfig(): Config
     {
         return new Config(
             [

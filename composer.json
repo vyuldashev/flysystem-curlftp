@@ -57,7 +57,7 @@
         ],
         "test:unit": "sh tests/run.sh",
         "test:slow_unit": "sh tests/run_slow.sh",
-        "phpstan": "vendor/bin/phpstan analyse -l 6 src"
+        "phpstan": "vendor/bin/phpstan analyse"
     },
     "minimum-stability": "dev",
     "prefer-stable": true

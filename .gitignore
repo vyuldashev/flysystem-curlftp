@@ -3,6 +3,7 @@
 /tests/resources
 /vendor/
 /coverage/
+/phpstan/
 /.phpunit.cache
 /.phpunit.result.cache
 /phpunit.xml

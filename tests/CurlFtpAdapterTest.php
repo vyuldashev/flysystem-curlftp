@@ -13,10 +13,8 @@ class CurlFtpAdapterTest extends TestCase
 {
     /**
      * @dataProvider filesAndSubfolderFilesProvider
-     *
-     * @param $filename
      */
-    public function testWrite($filename): void
+    public function testWrite(string $filename): void
     {
         $contents = $this->faker()->text;
 
@@ -31,10 +29,8 @@ class CurlFtpAdapterTest extends TestCase
 
     /**
      * @dataProvider filesAndSubfolderFilesProvider
-     *
-     * @param $filename
      */
-    public function testUpdate($filename): void
+    public function testUpdate(string $filename): void
     {
         $contents = $this->faker()->text;
 
@@ -52,10 +48,8 @@ class CurlFtpAdapterTest extends TestCase
 
     /**
      * @dataProvider filesAndSubfolderFilesProvider
-     *
-     * @param $filename
      */
-    public function testUpdateStream($filename): void
+    public function testUpdateStream(string $filename): void
     {
         $contents = $this->faker()->text;
 
@@ -82,10 +76,8 @@ class CurlFtpAdapterTest extends TestCase
 
     /**
      * @dataProvider filesProvider
-     *
-     * @param $filename
      */
-    public function testRename($filename): void
+    public function testRename(string $filename): void
     {
         $this->adapter->write($filename, 'foo', new Config);
 
@@ -99,10 +91,8 @@ class CurlFtpAdapterTest extends TestCase
 
     /**
      * @dataProvider filesProvider
-     *
-     * @param $filename
      */
-    public function testCopy($filename): void
+    public function testCopy(string $filename): void
     {
         $this->adapter->write($filename, 'foo', new Config);
 
@@ -121,10 +111,8 @@ class CurlFtpAdapterTest extends TestCase
 
     /**
      * @dataProvider filesAndSubfolderFilesProvider
-     *
-     * @param $filename
      */
-    public function testDelete($filename): void
+    public function testDelete(string $filename): void
     {
         $this->createResourceDirIfPathHasDir($filename);
 
@@ -150,10 +138,8 @@ class CurlFtpAdapterTest extends TestCase
 
     /**
      * @dataProvider filesAndSubfolderFilesProvider
-     *
-     * @param $filename
      */
-    public function testGetSetVisibility($filename): void
+    public function testGetSetVisibility(string $filename): void
     {
         $this->createResourceDirIfPathHasDir($filename);
 
@@ -176,10 +162,8 @@ class CurlFtpAdapterTest extends TestCase
 
     /**
      * @dataProvider filesAndSubfolderFilesProvider
-     *
-     * @param $name
      */
-    public function testRead($name): void
+    public function testRead(string $name): void
     {
         $contents = $this->faker()->text;
         $this->createResourceFile($name, $contents);
@@ -191,10 +175,8 @@ class CurlFtpAdapterTest extends TestCase
 
     /**
      * @dataProvider filesAndSubfolderFilesProvider
-     *
-     * @param $name
      */
-    public function testFileExists($name): void
+    public function testFileExists(string $name): void
     {
         $contents = $this->faker()->text;
         $this->createResourceFile($name, $contents);
@@ -230,10 +212,8 @@ class CurlFtpAdapterTest extends TestCase
 
     /**
      * @dataProvider withSubFolderProvider
-     *
-     * @param $path
      */
-    public function testListContents($path): void
+    public function testListContents(string $path): void
     {
         $contents = $this->faker()->text;
         $this->createResourceFile($path, $contents);
@@ -243,10 +223,8 @@ class CurlFtpAdapterTest extends TestCase
 
     /**
      * @dataProvider withSubFolderProvider
-     *
-     * @param $path
      */
-    public function testListContentsEmptyPath($path): void
+    public function testListContentsEmptyPath(string $path): void
     {
         $this->assertCount(0, iterator_to_array($this->adapter->listContents(dirname($path), false), false));
     }
@@ -256,10 +234,8 @@ class CurlFtpAdapterTest extends TestCase
      * after reading a file, especially if this file is in a subfolder.
      *
      * @dataProvider filesAndSubfolderFilesProvider
-     *
-     * @param $path
      */
-    public function testReadAndHasInSequence($path): void
+    public function testReadAndHasInSequence(string $path): void
     {
         $contents = $this->faker()->text;
         $this->createResourceFile($path, $contents);
@@ -276,10 +252,8 @@ class CurlFtpAdapterTest extends TestCase
      * after writing a file, especially if this file is in a subfolder.
      *
      * @dataProvider filesAndSubfolderFilesProvider
-     *
-     * @param $path
      */
-    public function testWriteAndHasInSequence($path): void
+    public function testWriteAndHasInSequence(string $path): void
     {
         $contents = $this->faker()->text;
 
@@ -333,7 +307,7 @@ class CurlFtpAdapterTest extends TestCase
         $this->assertTrue((bool) $this->adapter->fileExists($has_path));
     }
 
-    public static function filesAndSubfolderFilesProvider()
+    public static function filesAndSubfolderFilesProvider(): array
     {
         return [
             ['test.txt'],
@@ -359,7 +333,7 @@ class CurlFtpAdapterTest extends TestCase
         ];
     }
 
-    public static function filesProvider()
+    public static function filesProvider(): array
     {
         return [
             ['test.txt'],
@@ -375,7 +349,7 @@ class CurlFtpAdapterTest extends TestCase
         ];
     }
 
-    public static function withSubFolderProvider()
+    public static function withSubFolderProvider(): array
     {
         return [
             ['test/test.txt'],

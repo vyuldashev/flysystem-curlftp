@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace VladimirYuldashev\Flysystem;
 
+use CurlHandle;
+
 class Curl
 {
-    /**
-     * @var resource
-     */
-    protected $curl;
+    protected CurlHandle|false $curl;
 
     protected string $lastError;
 
@@ -24,8 +23,9 @@ class Curl
 
     public function __destruct()
     {
-        if (is_resource($this->curl)) {
+        if ($this->curl) {
             curl_close($this->curl);
+            $this->curl = false;
         }
     }
 
@@ -47,7 +47,7 @@ class Curl
      * @param  int  $key  One of the CURLOPT_* constant
      * @param  mixed  $value  The value of the CURL option
      */
-    public function setOption($key, $value): void
+    public function setOption(int $key, $value): void
     {
         $this->options[$key] = $value;
     }
@@ -59,7 +59,7 @@ class Curl
      *
      * @return mixed|null The value of the option set, or NULL, if it does not exist
      */
-    public function getOption($key)
+    public function getOption(int $key)
     {
         if ( ! $this->hasOption($key)) {
             return null;
@@ -75,7 +75,7 @@ class Curl
      *
      * @return bool
      */
-    public function hasOption($key): bool
+    public function hasOption(int $key): bool
     {
         return array_key_exists($key, $this->options);
     }
@@ -85,7 +85,7 @@ class Curl
      *
      * @param  int  $key  One of the CURLOPT_* constant
      */
-    public function removeOption($key): void
+    public function removeOption(int $key): void
     {
         if ($this->hasOption($key)) {
             unset($this->options[$key]);
@@ -97,9 +97,9 @@ class Curl
      *
      * @param  array  $options  Array where key is a CURLOPT_* constant
      *
-     * @return mixed Results of curl_exec
+     * @return string|bool Results of curl_exec
      */
-    public function exec($options = [])
+    public function exec($options = []): string|bool
     {
         $options = array_replace($this->options, $options);
 

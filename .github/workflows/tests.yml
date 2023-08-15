@@ -44,6 +44,9 @@ jobs:
       - name: Run PHP CS Fixer
         run: composer run test:style
 
+      - name: Run phpstan
+        run: composer run phpstan
+
       - name: Execute tests
         run: |
             composer config --global process-timeout 2000
