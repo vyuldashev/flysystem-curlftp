@@ -207,7 +207,7 @@ class CurlFtpAdapterTest extends TestCase
     {
         $this->adapter->write('foo.json.lastModified', 'bar', new Config);
         $lastModified = $this->adapter->lastModified('foo.json.lastModified')->lastModified();
-        $this->assertGreaterThan(strtotime("yesterday 0:00"), $lastModified);
+        $this->assertGreaterThan(strtotime('yesterday 0:00'), $lastModified);
     }
 
     /**
@@ -272,11 +272,11 @@ class CurlFtpAdapterTest extends TestCase
      */
     public function testReadAndHasInDifferentFoldersInSequence(): void
     {
-        $read_path = $this->faker()->unique()->word . '/' . $this->randomFileName();
+        $read_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
         $read_path_contents = $this->faker()->text;
         $this->createResourceFile($read_path, $read_path_contents);
 
-        $has_path = $this->faker()->unique()->word . '/' . $this->randomFileName();
+        $has_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
         $has_path_contents = $this->faker()->text;
         $this->createResourceFile($has_path, $has_path_contents);
 
@@ -293,10 +293,10 @@ class CurlFtpAdapterTest extends TestCase
      */
     public function testWriteAndHasInDifferentFoldersInSequence(): void
     {
-        $write_path = $this->faker()->unique()->word . '/' . $this->randomFileName();
+        $write_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
         $write_path_contents = $this->faker()->text;
 
-        $has_path = $this->faker()->unique()->word . '/' . $this->randomFileName();
+        $has_path = $this->faker()->unique()->word.'/'.$this->randomFileName();
         $has_path_contents = $this->faker()->text;
         $this->createResourceFile($has_path, $has_path_contents);
 
@@ -325,11 +325,11 @@ class CurlFtpAdapterTest extends TestCase
             ['test 1/test.txt'],
             ['test/test 1.txt'],
             ['test  1/test  2.txt'],
-            [self::faker()->word . '/' . self::randomFileName()],
-            [self::faker()->word . '/' . self::randomFileName()],
-            [self::faker()->word . '/' . self::randomFileName()],
-            [self::faker()->word . '/' . self::randomFileName()],
-            [self::faker()->word . '/' . self::randomFileName()],
+            [self::faker()->word.'/'.self::randomFileName()],
+            [self::faker()->word.'/'.self::randomFileName()],
+            [self::faker()->word.'/'.self::randomFileName()],
+            [self::faker()->word.'/'.self::randomFileName()],
+            [self::faker()->word.'/'.self::randomFileName()],
         ];
     }
 
@@ -357,11 +357,11 @@ class CurlFtpAdapterTest extends TestCase
             ['test 1/test.txt'],
             ['test/test 1.txt'],
             ['test  1/test  2.txt'],
-            [self::faker()->word . '/' . self::randomFileName()],
-            [self::faker()->word . '/' . self::randomFileName()],
-            [self::faker()->word . '/' . self::randomFileName()],
-            [self::faker()->word . '/' . self::randomFileName()],
-            [self::faker()->word . '/' . self::randomFileName()],
+            [self::faker()->word.'/'.self::randomFileName()],
+            [self::faker()->word.'/'.self::randomFileName()],
+            [self::faker()->word.'/'.self::randomFileName()],
+            [self::faker()->word.'/'.self::randomFileName()],
+            [self::faker()->word.'/'.self::randomFileName()],
         ];
     }
 }

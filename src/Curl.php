@@ -56,12 +56,11 @@ class Curl
      * Returns the value of the option.
      *
      * @param  int  $key  One of the CURLOPT_* constant
-     *
      * @return mixed|null The value of the option set, or NULL, if it does not exist
      */
     public function getOption(int $key)
     {
-        if ( ! $this->hasOption($key)) {
+        if (! $this->hasOption($key)) {
             return null;
         }
 
@@ -72,8 +71,6 @@ class Curl
      * Checking if the option is set.
      *
      * @param  int  $key  One of the CURLOPT_* constant
-     *
-     * @return bool
      */
     public function hasOption(int $key): bool
     {
@@ -96,8 +93,6 @@ class Curl
      * Calls curl_exec and returns its result.
      *
      * @param  array  $options  Array where key is a CURLOPT_* constant
-     *
-     * @return string|bool Results of curl_exec
      */
     public function exec($options = []): string|bool
     {

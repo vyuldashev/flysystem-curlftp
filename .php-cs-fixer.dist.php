@@ -13,9 +13,8 @@ return (new PhpCsFixer\Config())
         'single_line_after_imports' => true,
         'blank_line_before_statement' => ['statements' => ['return']],
         'cast_spaces' => true,
-        'concat_space' => ['spacing' => 'one'],
+        'concat_space' => ['spacing' => 'none'],
         'no_singleline_whitespace_before_semicolons' => true,
-        'not_operator_with_space' => true,
         'no_unused_imports' => true,
         'phpdoc_align' => false,
         'phpdoc_indent' => true,
@@ -23,11 +22,12 @@ return (new PhpCsFixer\Config())
         'phpdoc_no_alias_tag' => true,
         'phpdoc_no_package' => true,
         'phpdoc_scalar' => true,
-        'phpdoc_separation' => true,
         'phpdoc_summary' => true,
         'phpdoc_to_comment' => true,
         'phpdoc_trim' => true,
+        'no_empty_phpdoc' => true,
         'single_blank_line_at_eof' => true,
+        'single_quote' => true,
         'ternary_operator_spaces' => true,
         'ordered_imports' => [
             'sort_algorithm' => 'alpha',
@@ -35,5 +35,6 @@ return (new PhpCsFixer\Config())
         ],
         'no_extra_blank_lines' => true,
         'no_whitespace_in_blank_line' => true,
+        'trailing_comma_in_multiline' => ['elements' => ['arrays']],
     ])
     ->setFinder($finder);

@@ -56,7 +56,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function getResourcesPath(): string
     {
-        return __DIR__ . '/resources/';
+        return __DIR__.'/resources/';
     }
 
     protected function getResourceContent(string $path): string
@@ -90,7 +90,7 @@ abstract class TestCase extends BaseTestCase
             return;
         }
         $absolutePath = $this->getResourceAbsolutePath($path);
-        if ( ! is_dir($absolutePath)) {
+        if (! is_dir($absolutePath)) {
             $umask = umask(0);
             mkdir($absolutePath, 0777, true);
             umask($umask);
@@ -106,12 +106,12 @@ abstract class TestCase extends BaseTestCase
 
     protected static function randomFileName(): string
     {
-        return self::faker()->name . '.' . self::faker()->fileExtension();
+        return self::faker()->name.'.'.self::faker()->fileExtension();
     }
 
     protected static function faker(): FakerGenerator
     {
-        if ( ! self::$faker) {
+        if (! self::$faker) {
             self::$faker = Factory::create();
         }
 
@@ -120,8 +120,8 @@ abstract class TestCase extends BaseTestCase
 
     protected function clearResources(): void
     {
-        exec('rm -rf ' . escapeshellarg($this->getResourcesPath()) . '*');
-        exec('rm -rf ' . escapeshellarg($this->getResourcesPath()) . '.* 2>/dev/null');
+        exec('rm -rf '.escapeshellarg($this->getResourcesPath()).'*');
+        exec('rm -rf '.escapeshellarg($this->getResourcesPath()).'.* 2>/dev/null');
         clearstatcache();
     }
 
@@ -130,7 +130,7 @@ abstract class TestCase extends BaseTestCase
         return new Config(
             [
                 Config::OPTION_VISIBILITY => Visibility::PUBLIC,
-                Config::OPTION_DIRECTORY_VISIBILITY => Visibility::PUBLIC
+                Config::OPTION_DIRECTORY_VISIBILITY => Visibility::PUBLIC,
             ]
         );
     }

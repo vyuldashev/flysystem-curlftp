@@ -149,7 +149,7 @@ class CurlFtpConnectionOptions
     {
         $protocol = $this->ftps() ? 'ftps' : 'ftp';
 
-        return $protocol . '://' . $this->host() . ':' . $this->port();
+        return $protocol.'://'.$this->host().':'.$this->port();
     }
 
     public static function fromArray(array $options): self
