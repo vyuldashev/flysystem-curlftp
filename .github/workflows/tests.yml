@@ -51,3 +51,4 @@ jobs:
         run: |
             composer config --global process-timeout 2000
             sudo composer run test:unit
+            sudo composer run test:unit_implicit_ftp_over_tls

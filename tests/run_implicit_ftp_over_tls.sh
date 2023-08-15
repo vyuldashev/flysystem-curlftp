@@ -1,7 +1,6 @@
 #!/bin/sh
 #
-# slow tests
-# implicit FTP over SSL
+# testing implicit FTP over SSL
 
 docker_compose()
 {
