@@ -24,7 +24,7 @@
         "php": "^8.0.2",
         "ext-curl": "*",
         "ext-intl": "*",
-        "league/flysystem": "^3.0"
+        "league/flysystem": "^2.0 || ^3.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
