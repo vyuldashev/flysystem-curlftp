@@ -1,32 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace VladimirYuldashev\Flysystem;
+
+use CurlHandle;
 
 class Curl
 {
-    /**
-     * @var resource
-     */
-    protected $curl;
+    protected CurlHandle|false $curl;
 
-    /**
-     * @var array
-     */
-    protected $options;
+    protected string $lastError;
 
     /**
      * @param  array  $options  Array of the Curl options, where key is a CURLOPT_* constant
      */
-    public function __construct($options = [])
-    {
+    public function __construct(
+        protected array $options = []
+    ) {
         $this->curl = curl_init();
-        $this->options = $options;
     }
 
     public function __destruct()
     {
-        if (is_resource($this->curl)) {
+        if ($this->curl) {
             curl_close($this->curl);
+            $this->curl = false;
         }
     }
 
@@ -48,7 +47,7 @@ class Curl
      * @param  int  $key  One of the CURLOPT_* constant
      * @param  mixed  $value  The value of the CURL option
      */
-    public function setOption($key, $value): void
+    public function setOption(int $key, $value): void
     {
         $this->options[$key] = $value;
     }
@@ -59,7 +58,7 @@ class Curl
      * @param  int  $key  One of the CURLOPT_* constant
      * @return mixed|null The value of the option set, or NULL, if it does not exist
      */
-    public function getOption($key)
+    public function getOption(int $key)
     {
         if (! $this->hasOption($key)) {
             return null;
@@ -72,9 +71,8 @@ class Curl
      * Checking if the option is set.
      *
      * @param  int  $key  One of the CURLOPT_* constant
-     * @return bool
      */
-    public function hasOption($key): bool
+    public function hasOption(int $key): bool
     {
         return array_key_exists($key, $this->options);
     }
@@ -84,7 +82,7 @@ class Curl
      *
      * @param  int  $key  One of the CURLOPT_* constant
      */
-    public function removeOption($key): void
+    public function removeOption(int $key): void
     {
         if ($this->hasOption($key)) {
             unset($this->options[$key]);
@@ -95,16 +93,24 @@ class Curl
      * Calls curl_exec and returns its result.
      *
      * @param  array  $options  Array where key is a CURLOPT_* constant
-     * @return mixed Results of curl_exec
      */
-    public function exec($options = [])
+    public function exec($options = []): string|bool
     {
         $options = array_replace($this->options, $options);
 
         curl_setopt_array($this->curl, $options);
         $result = curl_exec($this->curl);
+        $this->lastError = curl_error($this->curl);
         curl_reset($this->curl);
 
         return $result;
+    }
+
+    /**
+     * Returns curl_error from last call to exec.
+     */
+    public function lastError(): string
+    {
+        return $this->lastError;
     }
 }
