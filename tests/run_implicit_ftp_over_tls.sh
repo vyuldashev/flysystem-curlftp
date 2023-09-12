@@ -4,7 +4,7 @@
 
 docker_compose()
 {
-	docker-compose -p flysystem-curlftp/tests -f tests/docker/docker-compose.yml $@
+	docker-compose -p flysystem-curlftp-tests -f tests/docker/docker-compose.yml $@
 }
 
 error_test()
